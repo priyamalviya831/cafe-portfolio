@@ -68,7 +68,7 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
   );
 
   const qrLayoutId = tableData?.result?.layoutId;
-   const adminId = tableData?.result?.adminId;
+   const adminId = tableData?.result?.adminId?._id;
 
    const isLayoutFromQR = !!qrLayoutId;
 
