@@ -13,6 +13,7 @@ import MyOrders from "./pages/MyOrders";
 
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
+import QrRedirect from "./components/QrRedirect";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,7 +41,9 @@ export default function App() {
             <BrowserRouter>
               <Routes>
                 <Route path="/:qrId" element={<LayoutProvider> <Index /> </LayoutProvider>} >
-                  <Route index element={<Home />} />
+
+                  {/* <Route index element={<Home />} /> */}
+                  <Route index element={<> <QrRedirect /> <Home /></>}/>
                   <Route path="menu" element={<Menu />} />
                   <Route path="my-orders" element={<MyOrders />} />
                 </Route>
@@ -53,7 +56,7 @@ export default function App() {
                     </LayoutProvider>
                   }
                 >
-                {/* <Route
+                  {/* <Route
                   path="/:qrId/my-orders"
                   element={
                     <LayoutProvider>
@@ -62,8 +65,8 @@ export default function App() {
                   }
                 />
                 <Route path="*" element={<NotFound />} /> */}
-                <Route index element={<Home />} />
-                <Route path="menu" element={<Menu />} />
+                  <Route index element={<Home />} />
+                  <Route path="menu" element={<Menu />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>

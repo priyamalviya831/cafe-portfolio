@@ -75,7 +75,7 @@ export function MenuCard({ item, index }: MenuCardProps) {
               </span>
             </div>
           </div>
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p className="text-sm text-muted-foreground line-clamp-2 h-10">
             {item.description}
           </p>
           <div className="justify-center flex m-2">
@@ -178,14 +178,14 @@ export function MenuCard({ item, index }: MenuCardProps) {
             </span>
           </div>
         </div>
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+        <p className="text-sm text-muted-foreground line-clamp-2 mb-2 h-9">
           {item.description}
         </p>
 
         {!cartItem ? (
           <Button
             variant="outline"
-            className="h-7 px-8 py-4 text-md rounded-full"
+            className="h-7 px-8 py-4 text-md rounded-full mt-2"
             onClick={() => {
               addItem(item);
               toast.success("Item added to cart.");
@@ -195,7 +195,7 @@ export function MenuCard({ item, index }: MenuCardProps) {
             Add
           </Button>
         ) : (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mt-4">
             <Button
               size="icon"
               variant="outline"

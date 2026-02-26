@@ -21,8 +21,8 @@ import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginPopup({ open, onClose }) {
-  const { config, tableNumber, setTableNumber, isFromQR, isPreview, cafeId ,isLayoutFromQR} = useLayout();
-  const {setUser} = useAuth();
+  const { config, tableNumber, setTableNumber, isFromQR, isPreview, cafeId, isLayoutFromQR } = useLayout();
+  const { setUser } = useAuth();
   const {
     control,
     handleSubmit,
@@ -44,13 +44,13 @@ export default function LoginPopup({ open, onClose }) {
     }
   }, [isFromQR, tableNumber, setValue]);
 
+  const { login } = useAuth();
+  const adminId = config?.adminId?._id;
+
   const { mutate, isPending } = usePost(API_ROUTES.createCustomer, {
     onSuccess: (response) => {
-      localStorage.setItem(
-        "cafe_user",
-        JSON.stringify(response.result)
-      );
-      setUser(response.result);
+      login(response.result, adminId);
+      // setUser(response.result);
       toast.success(`Welcome to ${config.adminId.cafeName}!`);
       onClose();
     },

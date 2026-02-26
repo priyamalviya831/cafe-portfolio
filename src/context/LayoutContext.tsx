@@ -109,15 +109,26 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
   const layoutType = getFinalLayout(layoutId);
 
   useEffect(() => {
-    if (!layoutData?.result) return;
+    if (!layoutData?.result?.adminId) {
+      updateFavicon(undefined);
+      document.title = "Cafe";
+      return;
+    }
 
     const cafeName = layoutData.result.adminId?.cafeName || "Cafe";
-    const logo = layoutData.result.adminId.logo || "/favicon.ico";
+    const logo = layoutData.result?.adminId?.logo;
     const description =
       layoutData.result.cafeDescription || `Welcome to ${cafeName}`;
 
     document.title = cafeName;
-    updateFavicon(logo);
+
+    if (logo) {
+      updateFavicon(logo);
+    } else {
+      updateFavicon(undefined);
+    }
+
+    // updateFavicon(logo);
     updateMeta("description", description);
     updateMetaProperty("og:title", cafeName);
     updateMetaProperty("og:description", description);
@@ -169,10 +180,13 @@ export function useLayout() {
   if (!context) throw new Error("useLayout must be used within LayoutProvider");
   return context;
 }
-function updateFavicon(href: string) {
+
+function updateFavicon(href?: string) {
   document
     .querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]')
     .forEach(el => el.remove());
+
+  if (!href) return;
 
   const link = document.createElement("link");
   link.rel = "icon";

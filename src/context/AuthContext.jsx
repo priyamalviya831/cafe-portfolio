@@ -3,29 +3,35 @@ import { createContext, useContext, useEffect, useState } from "react";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
+
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
-    const storedUser = localStorage.getItem("cafe_user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
-    }
     setLoading(false);
   }, []);
 
-  const login = (userData) => {
+
+  const login = (userData, adminId) => {
     setUser(userData);
     setIsAuthenticated(true);
-    localStorage.setItem("cafe_user", JSON.stringify(userData));
+
+    localStorage.setItem(
+      `cafe_user_${adminId}`,
+      JSON.stringify(userData)
+    );
   };
 
-  const logout = () => {
+  const logout = (adminId) => {
+    if (adminId) {
+      localStorage.removeItem(`cafe_user_${adminId}`);
+    }
+    localStorage.removeItem("active_cafe_user");
+
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem("cafe_user");
   };
 
   return (

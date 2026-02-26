@@ -13,10 +13,13 @@ import { useAuth } from "@/context/AuthContext";
 // import { useLocation } from "react-router-dom";
 
 import { Outlet, useLocation } from "react-router-dom";
+import { useLayout } from '@/context/LayoutContext';
 
 const Index = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { setUser, setIsAuthenticated } = useAuth();
+
+  const { config } = useLayout();
 
   const [showLogin, setShowLogin] = useState(false);
   const location = useLocation();
@@ -32,15 +35,22 @@ const Index = () => {
   }, [location]);
 
   useEffect(() => {
-    setShowLogin(!isAuthenticated);
-  }, [isAuthenticated])
+    const adminId = config?.adminId?._id;
+    if (!adminId) return;
+
+    const storedUser = localStorage.getItem(`cafe_user_${adminId}`);
+
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, [config?.adminId?._id]);
 
   return (
     <CartProvider>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen flex flex-col bg-background">
         <LoginPopup open={showLogin} onClose={() => setShowLogin(false)} />
         <Header onCartClick={() => setIsCartOpen(true)} />
-        <main className="overflow-hidden">
+        <main className="flex-1 overflow-hidden">
           <Outlet />
         </main>
         <Footer />

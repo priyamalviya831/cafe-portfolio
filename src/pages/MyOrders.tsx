@@ -92,8 +92,8 @@ export default function MyOrders() {
       );
 
       toast.success(
-      `Order #${order.tableNumber} is now ${order.orderStatus}`,
-    );
+        `Order #${order.tableNumber} is now ${order.orderStatus}`,
+      );
     };
 
     socket.on("order:new", handleNewOrder);
@@ -114,9 +114,8 @@ export default function MyOrders() {
   }
 
   return (
-    <CartProvider>
-      <Header onCartClick={() => setIsCartOpen(true)} />
 
+    <>
       <section className="container mx-auto px-4 pt-24 pb-10">
         <h1 className="font-display text-3xl mb-8">My Orders</h1>
 
@@ -185,6 +184,6 @@ export default function MyOrders() {
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
       />
-    </CartProvider>
+    </>
   );
 }

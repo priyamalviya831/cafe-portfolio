@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { LAYOUTS } from '@/utils/constants';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useFetch } from "@/utils/useApi";
+import API_ROUTES from "@/utils/api_constant";
+import { useAuth } from "@/context/AuthContext";
 
 interface HeaderProps {
   onCartClick: () => void;
@@ -19,6 +22,22 @@ export function Header({ onCartClick }: HeaderProps) {
   const { qrId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { user } = useAuth();
+
+  const { data: ordersData } = useFetch(
+    `order-${user?._id}`,
+    API_ROUTES.getCustomerOrder,
+    { userId: user?._id },
+    {
+      enabled: !!user?._id,
+      staleTime: 5 * 60 * 1000, // cache for 5 mins
+    }
+  );
+
+  const hasOrders =
+    (ordersData?.result?.results?.length ?? 0) > 0;
+
   const navItems = [
     { label: "Home", section: "home" },
     { label: "Menu", section: "menu" },
@@ -46,8 +65,8 @@ export function Header({ onCartClick }: HeaderProps) {
       animate={{ y: 0 }}
       transition={{ duration: 0.6 }}
       className={`fixed top-0 left-0 right-0 z-50 ${isElegant
-          ? "glass-effect border-b border-border/50"
-          : "bg-card shadow-soft"
+        ? "glass-effect border-b border-border/50"
+        : "bg-card shadow-soft"
         }`}
     >
       <div className="container mx-auto px-4">
@@ -88,16 +107,29 @@ export function Header({ onCartClick }: HeaderProps) {
           {/* Right Actions */}
           <div className="flex items-center gap-4">
             {/* My Orders */}
-            <motion.button
+            {/* <motion.button
               whileHover={{ scale: 1.05 }}
               onClick={() => navigate(`${basePath}/my-orders`)}
               className={`hidden md:flex ${location.pathname.includes("my-orders")
-                  ? "text-primary"
-                  : "text-foreground"
+                ? "text-primary"
+                : "text-foreground"
                 }`}
             >
               <ClipboardList className="h-5 w-5" />
-            </motion.button>
+            </motion.button> */}
+
+            {hasOrders && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                onClick={() => navigate(`${basePath}/my-orders`)}
+                className={`hidden md:flex ${location.pathname.includes("my-orders")
+                    ? "text-primary"
+                    : "text-foreground"
+                  }`}
+              >
+                <ClipboardList className="h-5 w-5" />
+              </motion.button>
+            )}
 
             {/* Cart */}
             <motion.button
