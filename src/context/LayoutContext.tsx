@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LayoutType, CafeConfig, CafeBootstrapResponse, MenuItem } from "@/types/cafe";
 import { APIRequest } from "@/utils/APIRequest";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { LAYOUTS } from "@/utils/constants";
 import API_ROUTES from "@/utils/api_constant";
 import { useFetch } from "@/utils/useApi";
@@ -28,7 +28,7 @@ interface LayoutContextType {
   isLoading: boolean;
   error: unknown;
 
-   isLayoutFromQR: boolean;
+  isLayoutFromQR: boolean;
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
@@ -39,23 +39,15 @@ const resolveLayoutFromId = (id?: string): LayoutType => {
   return LAYOUTS.ELEGANT;
 };
 
-// const getFinalLayout = (
-//   data: CafeBootstrapResponse | undefined,
-//   urlLayoutId?: string
-// ): LayoutType => {
-//   if (!data) return LAYOUTS.ELEGANT;
-//   const { result } = data;
-//   if (urlLayoutId) {
-//     return resolveLayoutFromId(urlLayoutId);
-//   }
-//   return resolveLayoutFromId(result.defaultLayoutId);
-// };
 const getFinalLayout = (layoutId?: string): LayoutType => {
   return resolveLayoutFromId(layoutId);
 };
 
 export function LayoutProvider({ children }: { children: React.ReactNode }) {
   const { qrId } = useParams<{ qrId?: string; }>();
+  const [searchParams] = useSearchParams();
+  const previewLayoutId = searchParams.get("previewLayoutId");
+
 
   const isPreview = !qrId;
 
@@ -64,26 +56,36 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
     qrId ? `${API_ROUTES.getTableByQr}/${qrId}` : null, {},
     {
       enabled: true
-    }  
+    }
   );
 
   const qrLayoutId = tableData?.result?.layoutId;
-   const adminId = tableData?.result?.adminId?._id;
+  const adminId = tableData?.result?.adminId?._id;
 
-   const isLayoutFromQR = !!qrLayoutId;
+  const isLayoutFromQR = !!qrLayoutId;
 
-    const layoutApiUrl = qrLayoutId
-    ? `${API_ROUTES.getLayoutById}/${qrLayoutId}` // ✅ QR layout
-    : adminId
-    ? `${API_ROUTES.getActiveLayout}/${adminId}` // ✅ fallback
-    : null;
+  const layoutApiUrl = previewLayoutId
+    ? `${API_ROUTES.getLayoutById}/${previewLayoutId}` // ✅ PREVIEW override
+    : qrLayoutId
+      ? `${API_ROUTES.getLayoutById}/${qrLayoutId}`   // ✅ QR layout
+      : adminId
+        ? `${API_ROUTES.getActiveLayout}/${adminId}`  // ✅ fallback
+        : null;
 
-     const {
+  const layoutCacheKey = previewLayoutId
+    ? ["get-layout", "preview", previewLayoutId]
+    : qrLayoutId
+      ? ["get-layout", "qr", qrLayoutId]
+      : adminId
+        ? ["get-layout", "active", adminId]
+        : null;
+
+  const {
     data: layoutData,
     isLoading: isLayoutLoading,
     error: layoutError,
   } = useFetch(
-    layoutApiUrl ? ["get-layout", qrLayoutId || adminId] : null,
+    layoutCacheKey,
     layoutApiUrl,
     {},
     { enabled: !!layoutApiUrl }
@@ -100,9 +102,10 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
     }
   }, [tableNo, layoutData])
 
+  //const layoutId = layoutData?.result?._id;
   // const layoutId = layoutData?.result?.layoutId
-  const layoutId = isLayoutFromQR? qrLayoutId: layoutData?.result?.defaultLayoutId;
   // const layoutType = getFinalLayout(layoutData, layoutId);
+  const layoutId = isLayoutFromQR ? qrLayoutId : layoutData?.result?.defaultLayoutId;
   const layoutType = getFinalLayout(layoutId);
 
   useEffect(() => {
@@ -146,7 +149,7 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
         menuItems,
         categories,
         gstPercentage,
-         isLayoutFromQR,
+        isLayoutFromQR,
         tableNumber,
         setTableNumber,
         isFromQR: !!qrId,
