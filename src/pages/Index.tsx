@@ -10,11 +10,13 @@ import { CartDrawer } from '@/components/CartDrawer';
 import { useEffect, useState } from "react";
 import LoginPopup from "@/components/LoginPopup";
 import { useAuth } from "@/context/AuthContext";
-import { useLocation } from "react-router-dom";
+// import { useLocation } from "react-router-dom";
+
+import { Outlet, useLocation } from "react-router-dom";
 
 const Index = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const {isAuthenticated} = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const [showLogin, setShowLogin] = useState(false);
   const location = useLocation();
@@ -29,7 +31,7 @@ const Index = () => {
     }
   }, [location]);
 
-  useEffect(()=>{
+  useEffect(() => {
     setShowLogin(!isAuthenticated);
   }, [isAuthenticated])
 
@@ -38,11 +40,8 @@ const Index = () => {
       <div className="min-h-screen bg-background">
         <LoginPopup open={showLogin} onClose={() => setShowLogin(false)} />
         <Header onCartClick={() => setIsCartOpen(true)} />
-        <main className='overflow-hidden'>
-          <HeroSection />
-          <MenuSection />
-          <AboutSection />
-          <ContactSection />
+        <main className="overflow-hidden">
+          <Outlet />
         </main>
         <Footer />
         <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />

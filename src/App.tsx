@@ -11,6 +11,9 @@ import { AuthProvider } from "@/context/AuthContext";
 import { LayoutProvider } from "./context/LayoutContext";
 import MyOrders from "./pages/MyOrders";
 
+import Home from "./pages/Home";
+import Menu from "./pages/Menu";
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -36,7 +39,12 @@ export default function App() {
           <AuthProvider>
             <BrowserRouter>
               <Routes>
-                <Route path="/:qrId" element={<LayoutProvider> <Index /> </LayoutProvider>} />
+                <Route path="/:qrId" element={<LayoutProvider> <Index /> </LayoutProvider>} >
+                  <Route index element={<Home />} />
+                  <Route path="menu" element={<Menu />} />
+                  <Route path="my-orders" element={<MyOrders />} />
+                </Route>
+
                 <Route
                   path="/cafe/:layoutId/*"
                   element={
@@ -44,8 +52,8 @@ export default function App() {
                       <Index />
                     </LayoutProvider>
                   }
-                />
-                <Route
+                >
+                {/* <Route
                   path="/:qrId/my-orders"
                   element={
                     <LayoutProvider>
@@ -53,6 +61,10 @@ export default function App() {
                     </LayoutProvider>
                   }
                 />
+                <Route path="*" element={<NotFound />} /> */}
+                <Route index element={<Home />} />
+                <Route path="menu" element={<Menu />} />
+                </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Toaster position="top-right" reverseOrder={false} />
