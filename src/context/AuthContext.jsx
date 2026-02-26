@@ -13,7 +13,20 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  useEffect(() => {
+    const keys = Object.keys(localStorage).filter(key =>
+      key.startsWith("cafe_user_")
+    );
 
+    if (keys.length > 0) {
+      const storedUser = JSON.parse(localStorage.getItem(keys[0]));
+      setUser(storedUser);
+      setIsAuthenticated(true);
+    }
+
+    setLoading(false);
+  }, []);
+  
   const login = (userData, adminId) => {
     setUser(userData);
     setIsAuthenticated(true);

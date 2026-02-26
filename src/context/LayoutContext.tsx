@@ -29,6 +29,9 @@ interface LayoutContextType {
   error: unknown;
 
   isLayoutFromQR: boolean;
+
+  isLoginOpen: boolean;
+setIsLoginOpen: (value: boolean) => void;
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
@@ -48,7 +51,7 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
   const [searchParams] = useSearchParams();
   const previewLayoutId = searchParams.get("previewLayoutId");
 
-
+const [isLoginOpen, setIsLoginOpen] = useState(false);
   const isPreview = !qrId;
 
   const { data: tableData, isLoading, error } = useFetch(
@@ -101,6 +104,18 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
       setTableNumber("1");
     }
   }, [tableNo, layoutData])
+
+  useEffect(() => {
+  if (qrId && !isPreview) {
+    const keys = Object.keys(localStorage).filter(key =>
+      key.startsWith("cafe_user_")
+    );
+
+    if (keys.length === 0) {
+      setIsLoginOpen(true); // ✅ AUTO OPEN ON QR SCAN
+    }
+  }
+}, [qrId, isPreview]);
 
   //const layoutId = layoutData?.result?._id;
   // const layoutId = layoutData?.result?.layoutId
@@ -168,6 +183,8 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
         qrId,
         isLoading: isLoading || isLayoutLoading,
         error: layoutError || error,
+         isLoginOpen,
+    setIsLoginOpen,
       }}
     >
       {children}

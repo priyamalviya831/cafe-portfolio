@@ -21,8 +21,11 @@ import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginPopup({ open, onClose }) {
-  const { config, tableNumber, setTableNumber, isFromQR, isPreview, cafeId, isLayoutFromQR } = useLayout();
+  const { config, tableNumber, setTableNumber, isFromQR, isPreview, isLoginOpen, setIsLoginOpen } = useLayout();
   const { setUser } = useAuth();
+
+  if (isPreview) return null;
+
   const {
     control,
     handleSubmit,
@@ -63,13 +66,14 @@ export default function LoginPopup({ open, onClose }) {
   const onSubmit = (data) => {
     delete data.tableNumber; // Remove tableNumber from payload
     mutate({ ...data, adminId: config.adminId._id });
+    setIsLoginOpen(false);
   };
 
-  // if (isPreview) return null;
-  if (isPreview || isLayoutFromQR) return null;
+  if (isPreview) return null;
+  // if (isPreview || isLayoutFromQR) return null;
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={isLoginOpen} onClose={() => setIsLoginOpen(false)}>
       <DialogTitle className="font-bold border flex justify-between items-center">
         <p className="text-center"> Welcome to {config?.logo} </p>
       </DialogTitle>

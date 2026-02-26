@@ -18,11 +18,9 @@ interface CartDrawerProps {
   onClose: () => void;
 }
 
-
-
 export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { items, updateQuantity, removeItem, clearCart, total } = useCart();
-  const { layoutType, gstPercentage, tableNumber } = useLayout();
+  const { layoutType, gstPercentage, tableNumber ,setIsLoginOpen } = useLayout();
   const { user } = useAuth();
   const { layoutId, qrId } = useParams();
   const navigate = useNavigate();
@@ -69,7 +67,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const handlePlaceOrder = () => {
     if (!user?._id) {
       toast.error("Please login to place your order");
-      onClose();
+      // onClose();
+      setIsLoginOpen(true);
       return;
     }
 
