@@ -3,12 +3,12 @@ import { api_enums } from "./api";
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const handleResponse = async (response) => {
-  const data = await response.json();   // ✅ read once
+  const data = await response.json(); // ✅ read once
   if (!response.ok) {
     throw new Error(data.message || "Something went wrong");
   }
 
-  return data;  
+  return data;
 };
 
 const getBody = (data) =>

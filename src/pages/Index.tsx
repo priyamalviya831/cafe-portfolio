@@ -34,17 +34,6 @@ const Index = () => {
     }
   }, [location]);
 
-  useEffect(() => {
-    const adminId = config?.adminId?._id;
-    if (!adminId) return;
-
-    const storedUser = localStorage.getItem(`cafe_user_${adminId}`);
-
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, [config?.adminId?._id]);
-
   return (
     <CartProvider>
       <div className="min-h-screen flex flex-col bg-background">

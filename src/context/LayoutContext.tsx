@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { LayoutType, CafeConfig, CafeBootstrapResponse, MenuItem } from "@/types/cafe";
-import { APIRequest } from "@/utils/APIRequest";
+import { LayoutType, CafeConfig, MenuItem } from "@/types/cafe";
 import { useParams, useSearchParams } from "react-router-dom";
 import { LAYOUTS } from "@/utils/constants";
 import API_ROUTES from "@/utils/api_constant";
@@ -31,7 +29,7 @@ interface LayoutContextType {
   isLayoutFromQR: boolean;
 
   isLoginOpen: boolean;
-setIsLoginOpen: (value: boolean) => void;
+  setIsLoginOpen: (value: boolean) => void;
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
@@ -51,7 +49,7 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
   const [searchParams] = useSearchParams();
   const previewLayoutId = searchParams.get("previewLayoutId");
 
-const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const isPreview = !qrId;
 
   const { data: tableData, isLoading, error } = useFetch(
@@ -106,20 +104,11 @@ const [isLoginOpen, setIsLoginOpen] = useState(false);
   }, [tableNo, layoutData])
 
   useEffect(() => {
-  if (qrId && !isPreview) {
-    const keys = Object.keys(localStorage).filter(key =>
-      key.startsWith("cafe_user_")
-    );
-
-    if (keys.length === 0) {
-      setIsLoginOpen(true); // ✅ AUTO OPEN ON QR SCAN
+    if (qrId && !isPreview && adminId) {
+      setIsLoginOpen(true);
     }
-  }
-}, [qrId, isPreview]);
+  }, [qrId, isPreview, adminId]);
 
-  //const layoutId = layoutData?.result?._id;
-  // const layoutId = layoutData?.result?.layoutId
-  // const layoutType = getFinalLayout(layoutData, layoutId);
   const layoutId = isLayoutFromQR ? qrLayoutId : layoutData?.result?.defaultLayoutId;
   const layoutType = getFinalLayout(layoutId);
 
@@ -183,8 +172,8 @@ const [isLoginOpen, setIsLoginOpen] = useState(false);
         qrId,
         isLoading: isLoading || isLayoutLoading,
         error: layoutError || error,
-         isLoginOpen,
-    setIsLoginOpen,
+        isLoginOpen,
+        setIsLoginOpen,
       }}
     >
       {children}
