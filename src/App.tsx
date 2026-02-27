@@ -48,7 +48,8 @@ export default function App() {
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
-              <Toaster position="top-right" reverseOrder={false} />
+              {/* <Toaster position="top-right" reverseOrder={false} /> */}
+              <Toaster position="bottom-right" reverseOrder={false} />
             </BrowserRouter>
           </AuthProvider>
         </TooltipProvider>

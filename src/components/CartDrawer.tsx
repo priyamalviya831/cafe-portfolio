@@ -44,6 +44,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const gstAmount = (total * gstPercentage) / 100;
   const grandTotal = total + gstAmount;
 
+  const roundedGrandTotal = Math.round(grandTotal);
+
   const { mutate: placeOrder, isPending } = usePost(
     API_ROUTES.placeOrder,
     {
@@ -216,7 +218,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
                   <div className="border-t pt-2 flex justify-between font-semibold text-lg">
                     <span className="font-display ">Total Payable</span>
-                    <span >₹{grandTotal.toFixed(2)}</span>
+                    {/* <span >₹{grandTotal.toFixed(2)}</span> */}
+                    <span>₹{roundedGrandTotal}</span>
                   </div>
                 </div>
 

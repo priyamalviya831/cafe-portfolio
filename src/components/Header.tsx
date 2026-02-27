@@ -73,7 +73,14 @@ export function Header({ onCartClick }: HeaderProps) {
         <div className="flex items-center justify-between h-16 md:h-20">
 
           {/* Logo */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-pointer" 
+          onClick={() => {
+            if (location.pathname === `/${qrId}`) {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+              navigate(`/${qrId}`);
+            }
+          }}>
             {config?.adminId?.logo ? (
               <img
                 src={config.adminId.logo}
@@ -123,8 +130,8 @@ export function Header({ onCartClick }: HeaderProps) {
                 whileHover={{ scale: 1.05 }}
                 onClick={() => navigate(`${basePath}/my-orders`)}
                 className={`hidden md:flex ${location.pathname.includes("my-orders")
-                    ? "text-primary"
-                    : "text-foreground"
+                  ? "text-primary"
+                  : "text-foreground"
                   }`}
               >
                 <ClipboardList className="h-5 w-5" />
@@ -135,11 +142,14 @@ export function Header({ onCartClick }: HeaderProps) {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={onCartClick}
-              className="relative"
+              className="relative flex items-center justify-center"
             >
               <ShoppingCart className="h-6 w-6" />
               {itemCount > 0 && (
-                <Badge className="absolute -top-1 -right-1">
+                // <Badge className="absolute -top-1 -right-1">
+                //   {itemCount}
+                // </Badge>
+                <Badge className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 text-[10px] flex items-center justify-center">
                   {itemCount}
                 </Badge>
               )}
