@@ -20,7 +20,7 @@ interface CartDrawerProps {
 
 export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { items, updateQuantity, removeItem, clearCart, total } = useCart();
-  const { layoutType, gstPercentage, tableNumber ,setIsLoginOpen } = useLayout();
+  const { layoutType, gstPercentage, tableNumber, setIsLoginOpen } = useLayout();
   const { user } = useAuth();
   const { layoutId, qrId } = useParams();
   const navigate = useNavigate();
@@ -49,10 +49,6 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     {
       onSuccess: (response: any) => {
         toast.success("Order placed successfully!");
-        queryClient.invalidateQueries({
-          queryKey: [`order-${user._id}`],
-        });
-
         clearCart();
         setNotes("");
         onClose();

@@ -52,14 +52,14 @@ export default function MyOrders() {
   }, [location.state]);
 
   const { data, isLoading } = useFetch(
-    `order-${user?._id}`,
+    "",
     API_ROUTES.getCustomerOrder,
     { userId: user?._id },
-    { enabled: !!user?._id }
+    { enabled: !!(user?._id) }
   );
 
   useEffect(() => {
-    if (data?.result?.results && orders.length === 0) {
+    if (data?.result?.results) {
       setOrders(data.result.results);
     }
   }, [data]);
