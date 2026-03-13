@@ -16,11 +16,11 @@ import { loginSchema } from "../utils/validation";
 import { PhoneCall, User, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { usePost } from "@/utils/useApi";
-import API_ROUTES from "@/utils/api_constant";
+import {API_ROUTES} from "@/utils/api_constant";
 import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 
-export default function LoginPopup({ open, onClose }) {
+export function LoginPopup({ open, onClose }) {
   const { config, tableNumber, setTableNumber, isFromQR, isPreview, isLoginOpen, setIsLoginOpen } = useLayout();
   const { setUser } = useAuth();
 
@@ -54,12 +54,12 @@ export default function LoginPopup({ open, onClose }) {
     onSuccess: (response) => {
       login(response.result, adminId);
       // setUser(response.result);
-      toast.success(`Welcome to ${config.adminId.cafeName}!`);
+      toast.success(`Welcome to ${config.adminId.cafeName ?? "Our Cafe"}!`);
       onClose();
     },
     onError: (error) => {
-      console.error(error);
-      toast.error("Login failed");
+      console.log(error);
+      toast.error(error?.message || "Login failed");
     },
   });
 

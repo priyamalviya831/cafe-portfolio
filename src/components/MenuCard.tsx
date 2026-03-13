@@ -6,8 +6,6 @@ import { useLayout } from "@/context/LayoutContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import fallbackImage from "@/assets/coffee-art.jpg";
-import pastry from "@/assets/pastry.jpg";
-import breakfast from "@/assets/breakfast.jpg";
 import toast from "react-hot-toast";
 import { LAYOUTS } from "@/utils/constants";
 
@@ -21,7 +19,7 @@ export function MenuCard({ item, index }: MenuCardProps) {
   const { layoutType } = useLayout();
   const isElegant = layoutType === LAYOUTS.ELEGANT;
 
-  const image = item.image || fallbackImage;
+  const image = item.image ?? fallbackImage;
   const cartItem = items.find((i) => i.id === item.id);
 
 
@@ -35,8 +33,6 @@ export function MenuCard({ item, index }: MenuCardProps) {
         whileHover={{ y: -8 }}
         className="group relative bg-card rounded-lg overflow-hidden shadow-card card-hover"
       >
-        {/* Image */}
-        {/* <div className="relative aspect-[4/3] overflow-hidden"> */}
         <div className="relative h-28 md:h-48 lg:h-56 overflow-hidden">
           <img
             src={image}
@@ -60,11 +56,8 @@ export function MenuCard({ item, index }: MenuCardProps) {
           </div>
         </div>
 
-        {/* Content */}
-        {/* <div className="p-4"> */}
         <div className="p-2 md:p-4">
           <div className="flex justify-between items-start mb-2">
-            {/* <h3 className="font-display text-lg font-medium text-foreground"> */}
             <h3 className="font-display text-sm md:text-lg font-medium text-foreground line-clamp-1">
               {item.name}
             </h3>
@@ -79,15 +72,13 @@ export function MenuCard({ item, index }: MenuCardProps) {
             </div>
           </div>
           <p className="text-sm text-muted-foreground line-clamp-2 h-10">
-            {/* <p className="hidden md:block text-sm text-muted-foreground line-clamp-2 h-10"> */}
-            {item.description}
+            {item.description ?? "Delicious item from our menu."}
           </p>
           <div className="justify-center flex m-2">
             {!cartItem ? (
               <Button
                 variant="outline"
                 className="h-7 px-8 py-4 text-md rounded-full"
-                // className="h-6 px-4 text-xs md:text-sm rounded-full"
                 onClick={() => {
                   addItem(item);
                   toast.success("Item added to cart.");
@@ -139,11 +130,9 @@ export function MenuCard({ item, index }: MenuCardProps) {
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
-      // className="group flex gap-4 p-4 bg-card rounded-2xl shadow-card hover:shadow-medium transition-all duration-300"
       className="group flex gap-2 p-2 sm:gap-3 sm:p-3 md:p-4 bg-card rounded-xl md:rounded-2xl shadow-card transition-all duration-300"
     >
-      {/* Image */}
-      {/* <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden"> */}
+
       <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-24 md:h-24 flex-shrink-0 rounded-lg md:rounded-xl overflow-hidden">
         <img
           src={image}
@@ -168,18 +157,12 @@ export function MenuCard({ item, index }: MenuCardProps) {
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        {/* <div className="flex justify-between items-start mb-1"> */}
-        {/* <h3 className="font-display text-base font-medium text-foreground truncate"> */}
-        {/* <h3 className="font-display text-sm md:text-base font-medium text-foreground truncate">
-            {item.name}
-          </h3> */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-1">
           <h3 className="font-display text-sm  md:text-base font-medium text-foreground truncate">
             {item.name}
           </h3>
 
           <div className="text-left sm:text-right mt-1 sm:mt-0">
-            {/* <div className="text-right"> */}
             <span className="text-accent font-bold block">
               ₹{item.discountPrice.toFixed(2)}
             </span>
@@ -188,16 +171,14 @@ export function MenuCard({ item, index }: MenuCardProps) {
             </span>
           </div>
         </div>
-        {/* <p className="text-sm text-muted-foreground line-clamp-2 mb-2 h-9"> */}
-          <p className="hidden md:block text-sm text-muted-foreground line-clamp-2 mb-2 h-9">
-          {item.description}
+        <p className="hidden md:block text-sm text-muted-foreground line-clamp-2 mb-2 h-9">
+          {item.description ?? "Delicious item from our menu."}
         </p>
 
         {!cartItem ? (
           <Button
             variant="outline"
             className="h-7 px-4 md:px-8 py-4 text-md rounded-full mt-2"
-            //  className="h-6 px-3 text-xs sm:text-sm rounded-full mt-1"
             onClick={() => {
               addItem(item);
               toast.success("Item added to cart.");
@@ -211,7 +192,6 @@ export function MenuCard({ item, index }: MenuCardProps) {
             <Button
               size="icon"
               variant="outline"
-              // className="h-8 w-8"
               className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8"
               onClick={() =>
                 updateQuantity(item.id, cartItem.quantity - 1)
@@ -220,7 +200,6 @@ export function MenuCard({ item, index }: MenuCardProps) {
               <Minus className="h-3 w-3" />
             </Button>
 
-            {/* <span className="font-medium w-4 text-center"> */}
             <span className="text-sm font-medium w-4 text-center">
               {cartItem.quantity}
             </span>

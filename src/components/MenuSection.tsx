@@ -28,12 +28,12 @@ export function MenuSection({
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!activeCategory && categories.length) {
+    if (!activeCategory && (categories?.length ?? 0)) {
       setActiveCategory(categories[0]);
     }
   }, [categories, activeCategory]);
 
-  if (!menuItems.length) {
+  if (!(menuItems?.length ?? 0)) {
     return (
       <section id="menu" className="py-20 text-center text-muted-foreground">
         Menu not available ☕
@@ -45,10 +45,6 @@ export function MenuSection({
   const filteredItems = activeCategory
     ? allItems.filter(item => item.category === activeCategory)
     : [];
-
-  // const filteredItems = activeCategory
-  // ? menuItems.filter((item) => item.category === activeCategory)
-  // : [];
 
   const visibleItems = showAll
     ? filteredItems
@@ -71,7 +67,7 @@ export function MenuSection({
                   Our Selection
                 </span>
                 <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-foreground mb-4">
-                  {config?.menuTitle || "The Menu"}
+                  {config?.menuTitle ?? "The Menu"}
                 </h2>
                 <p className="text-muted-foreground max-w-md mx-auto">
                   "Discover our curated selection of coffee, tea, and treats"
@@ -84,7 +80,7 @@ export function MenuSection({
                   <span className="text-sm font-medium">Freshly Made</span>
                 </div>
                 <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
-                  {config?.menuTitle || "The Menu"}
+                  {config?.menuTitle ?? "The Menu"}
                 </h2>
                 <p className="text-muted-foreground max-w-md mx-auto">
                   From espresso to desserts, everything made with care
@@ -104,7 +100,7 @@ export function MenuSection({
           >
             <div className='flex flex-col gap-2'>
               <h1 className="text-3xl md:text-4xl font-display font-semibold">
-                {config?.menuTitle || "Menu"}
+                {config?.menuTitle ?? "Menu"}
               </h1>
               <p className="text-muted-foreground text-sm">
                 Browse all items
@@ -155,10 +151,6 @@ export function MenuSection({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          // className={`grid gap-4 md:gap-6 ${isElegant
-          //   ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-          //   : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-          //   }`}
           className={`grid gap-3 md:gap-6 ${isElegant
             ? 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
             : 'grid-cols-2 md:grid-cols-2 lg:grid-cols-3'

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { LayoutType, CafeConfig, MenuItem } from "@/types/cafe";
 import { useParams, useSearchParams } from "react-router-dom";
 import { LAYOUTS } from "@/utils/constants";
-import API_ROUTES from "@/utils/api_constant";
+import {API_ROUTES} from "@/utils/api_constant";
 import { useFetch } from "@/utils/useApi";
 
 const ELEGANT_ID = import.meta.env.VITE_ELEGANT_LAYOUT_ID;
@@ -11,23 +11,17 @@ const COZY_ID = import.meta.env.VITE_COZY_LAYOUT_ID;
 interface LayoutContextType {
   layoutType: LayoutType;
   config?: CafeConfig;
-  cafeId?: string;
-
   menuItems: MenuItem[];
   categories: string[];
   gstPercentage: number;
-
   tableNumber: string | null;
   setTableNumber: (value: string) => void;
   isFromQR: boolean;
   isPreview: boolean;
   qrId?: string;
-
   isLoading: boolean;
   error: unknown;
-
   isLayoutFromQR: boolean;
-
   isLoginOpen: boolean;
   setIsLoginOpen: (value: boolean) => void;
 }
@@ -119,10 +113,10 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const cafeName = layoutData.result.adminId?.cafeName || "Cafe";
+    const cafeName = layoutData.result.adminId?.cafeName ?? "Cafe";
     const logo = layoutData.result?.adminId?.logo;
     const description =
-      layoutData.result.cafeDescription || `Welcome to ${cafeName}`;
+      layoutData.result.cafeDescription ?? `Welcome to ${cafeName}`;
 
     document.title = cafeName;
 
@@ -132,7 +126,6 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
       updateFavicon(undefined);
     }
 
-    // updateFavicon(logo);
     updateMeta("description", description);
     updateMetaProperty("og:title", cafeName);
     updateMetaProperty("og:description", description);
@@ -160,7 +153,6 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
       value={{
         layoutType,
         config: layoutData?.result,
-        cafeId: layoutData?.result?._id,
         menuItems,
         categories,
         gstPercentage,

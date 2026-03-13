@@ -65,7 +65,7 @@ function ElegantHeroContent({ config }: { config: any }) {
         transition={{ delay: 0.3, duration: 0.8 }}
         className="font-display text-3xl md:text-4xl lg:text-5xl font-medium text-primary-foreground leading-[1.1] mb-6"
       >
-        {config?.adminId?.cafeName ? config?.adminId?.cafeName : "Brew & Bean"}
+        {config?.adminId?.cafeName ?? "Brew & Bean"}
       </motion.h1>
 
       <motion.p
@@ -74,7 +74,7 @@ function ElegantHeroContent({ config }: { config: any }) {
         transition={{ delay: 0.5 }}
         className="text-sm md:text-lg text-primary-foreground/80 mb-8 max-w-md font-semibold leading-relaxed"
       >
-        {config?.cafeDescription}
+        {config?.cafeDescription ?? "Serving great coffee and warm moments every day."}
       </motion.p>
 
       <motion.div
@@ -92,13 +92,6 @@ function ElegantHeroContent({ config }: { config: any }) {
         >
           View Our Menu
         </Button>
-        {/* <Button
-          variant="outline"
-          size="lg"
-          className="hover:border-primary-foreground/30 text-primary-foreground bg-primary-foreground/10"
-        >
-          Reserve a Table
-        </Button> */}
       </motion.div>
 
       {/* Info Cards */}
@@ -110,11 +103,11 @@ function ElegantHeroContent({ config }: { config: any }) {
       >
         <div className="flex items-center gap-3 text-primary-foreground/80">
           <Clock className="h-5 w-5 text-sage-light" />
-          <span className="text-sm">{config?.adminId?.hours?.weekdays}</span>
+          <span className="text-sm">{config?.adminId?.hours?.weekdays ?? "Open Daily"}</span>
         </div>
         <div className="flex items-center gap-3 text-primary-foreground/80">
           <MapPin className="h-5 w-5 text-sage-light" />
-          <span className="text-sm">{config?.adminId?.address}</span>
+          <span className="text-sm">{config?.adminId?.address ?? "Visit our cafe"}</span>
         </div>
       </motion.div>
     </div>
@@ -141,7 +134,7 @@ function CozyHeroContent({ config }: { config: any }) {
         transition={{ delay: 0.2, duration: 0.8 }}
         className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold text-primary-foreground mb-6"
       >
-        {config?.adminId?.cafeName}
+     {config?.adminId?.cafeName ?? "Brew & Bean"}
       </motion.h1>
 
       <motion.p
@@ -150,7 +143,7 @@ function CozyHeroContent({ config }: { config: any }) {
         transition={{ delay: 0.4 }}
         className="text-sm md:text-lg text-primary-foreground/90 mb-10 max-w-xl mx-auto font-medium"
       >
-        {config?.cafeDescription}
+        {config?.cafeDescription ?? "Serving great coffee and warm moments every day."}
       </motion.p>
 
       <motion.div
@@ -187,12 +180,12 @@ function CozyHeroContent({ config }: { config: any }) {
         <div className="flex flex-col items-center text-primary-foreground">
           <Clock className="h-6 w-6 mb-2 text-sage" />
           <span className="text-sm font-medium">Open Daily</span>
-          <span className="text-xs opacity-80">{config?.adminId?.hours?.weekdays}</span>
+          <span className="text-xs opacity-80">{config?.adminId?.hours?.weekdays ?? "Open Daily"}</span>
         </div>
         <div className="flex flex-col items-center text-primary-foreground">
           <MapPin className="h-6 w-6 mb-2 text-sage" />
           <span className="text-sm font-medium">Visit Us</span>
-          <span className="text-xs opacity-80">{config?.adminId?.address}</span>
+          <span className="text-xs opacity-80">{config?.adminId?.address ?? "Visit our cafe"}</span>
         </div>
       </motion.div>
     </div>

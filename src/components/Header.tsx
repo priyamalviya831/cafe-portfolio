@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { LAYOUTS } from '@/utils/constants';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useFetch } from "@/utils/useApi";
-import API_ROUTES from "@/utils/api_constant";
+import {API_ROUTES} from "@/utils/api_constant";
 import { useAuth } from "@/context/AuthContext";
 
 interface HeaderProps {
@@ -85,13 +85,13 @@ export function Header({ onCartClick }: HeaderProps) {
               <img
                 src={config.adminId.logo}
                 alt="logo"
-                className="h-6 md:h-14 rounded-full"
+                className="w-8 h-8 md:w-12 md:h-12 rounded-full object-cover border border-border"
               />
             ) : (
               <Coffee className="h-6 w-6 text-primary" />
             )}
             <span className="font-display text-xl md:text-2xl font-semibold">
-              {config?.adminId?.cafeName || "Cafe"}
+              {config?.adminId?.cafeName ?? "Cafe"}
             </span>
           </div>
 
@@ -113,18 +113,6 @@ export function Header({ onCartClick }: HeaderProps) {
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
-            {/* My Orders */}
-            {/* <motion.button
-              whileHover={{ scale: 1.05 }}
-              onClick={() => navigate(`${basePath}/my-orders`)}
-              className={`hidden md:flex ${location.pathname.includes("my-orders")
-                ? "text-primary"
-                : "text-foreground"
-                }`}
-            >
-              <ClipboardList className="h-5 w-5" />
-            </motion.button> */}
-
             {hasOrders && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -146,9 +134,6 @@ export function Header({ onCartClick }: HeaderProps) {
             >
               <ShoppingCart className="h-6 w-6" />
               {itemCount > 0 && (
-                // <Badge className="absolute -top-1 -right-1">
-                //   {itemCount}
-                // </Badge>
                 <Badge className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 text-[10px] flex items-center justify-center">
                   {itemCount}
                 </Badge>

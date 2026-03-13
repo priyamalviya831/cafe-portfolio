@@ -1,6 +1,6 @@
 import { Navigate, useParams, useLocation } from "react-router-dom";
 
-export default function QrRedirect() {
+export function QrRedirect() {
   const { qrId } = useParams();
   const location = useLocation();
 

@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { MenuSection } from "@/components/MenuSection";
 import { useLayout } from "@/context/LayoutContext";
 
-export default function Menu() {
+export function Menu() {
   const { menuItems } = useLayout();
   const [search, setSearch] = useState("");
 

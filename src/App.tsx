@@ -5,15 +5,16 @@ import createCache from "@emotion/cache";
 import rtlPlugin from "stylis-plugin-rtl";
 import { Toaster } from "react-hot-toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import {Index} from "./pages/Index";
+import {NotFound} from "./pages/NotFound";
 import { AuthProvider } from "@/context/AuthContext";
 import { LayoutProvider } from "./context/LayoutContext";
-import MyOrders from "./pages/MyOrders";
+import {MyOrders} from "./pages/MyOrders";
 
-import Home from "./pages/Home";
-import Menu from "./pages/Menu";
-import QrRedirect from "./components/QrRedirect";
+import {Home} from "./pages/Home";
+import {Menu} from "./pages/Menu";
+import {QrRedirect} from "./components/QrRedirect";
+import {ErrorBoundary} from "./components/ErrorBoundary";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,15 +41,13 @@ export default function App() {
           <AuthProvider>
             <BrowserRouter>
               <Routes>
-                <Route path="/:qrId" element={<LayoutProvider> <Index /> </LayoutProvider>} >
-                  {/* <Route index element={<Home />} /> */}
+                <Route path="/:qrId" element={<LayoutProvider> <ErrorBoundary> <Index /></ErrorBoundary> </LayoutProvider>} >
                   <Route index element={<> <QrRedirect /> <Home /></>} />
                   <Route path="menu" element={<Menu />} />
                   <Route path="my-orders" element={<MyOrders />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
-              {/* <Toaster position="top-right" reverseOrder={false} /> */}
               <Toaster position="bottom-right" reverseOrder={false} />
             </BrowserRouter>
           </AuthProvider>

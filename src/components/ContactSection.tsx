@@ -173,7 +173,6 @@ export function ContactSection() {
                     fullWidth
                     size="small"
                     error={!!errors.firstName}
-                    // helperText={errors.firstName?.message}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -196,7 +195,6 @@ export function ContactSection() {
                     type="email"
                     size="small"
                     error={!!errors.email}
-                    // helperText={errors.email?.message}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -220,7 +218,6 @@ export function ContactSection() {
                     multiline
                     rows={4}
                     error={!!errors.message}
-                  // helperText={errors.message?.message}
                   />
                 )}
               />

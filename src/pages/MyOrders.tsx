@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Clock, IndianRupee } from "lucide-react";
 import { CartDrawer } from "@/components/CartDrawer";
 import { useEffect, useState } from "react";
-import API_ROUTES from "@/utils/api_constant";
+import {API_ROUTES} from "@/utils/api_constant";
 import { useFetch } from "@/utils/useApi";
 import { useAuth } from "@/context/AuthContext";
 import { useLocation } from "react-router-dom";
@@ -24,6 +24,9 @@ interface Order {
   items: OrderItem[];
   specialInstruction?: string;
   totalAmount: number;
+  subTotal: number;
+  gstAmount: number;
+  gstPercent: number;
   orderStatus: "pending" | "accepted" | "completed";
   paymentStatus: boolean;
   createdAt: string;
@@ -35,7 +38,7 @@ const statusStyles: Record<string, string> = {
   completed: "bg-gray-200 text-gray-800",
 };
 
-export default function MyOrders() {
+export function MyOrders() {
   const { user } = useAuth();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -52,7 +55,7 @@ export default function MyOrders() {
   }, [location.state]);
 
   const { data, isLoading } = useFetch(
-    "",
+    "customer-orders",
     API_ROUTES.getCustomerOrder,
     { userId: user?._id },
     { enabled: !!(user?._id) }
@@ -132,8 +135,6 @@ export default function MyOrders() {
                   <CardContent className="p-5 space-y-4">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="text-xs text-muted-foreground">Order ID</p>
-                        <p className="font-mono text-xs">{order._id}</p>
                         <p className="text-sm text-muted-foreground mt-1">
                           Table #{order.tableNumber}
                         </p>
@@ -159,16 +160,35 @@ export default function MyOrders() {
                       </p>
                     )}
 
-                    <div className="flex justify-between items-center border-t pt-3">
+                    <div className="border-t pt-3 space-y-3">
+
+                      {/* Date */}
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Clock className="h-4 w-4" />
                         {new Date(order.createdAt).toLocaleString()}
                       </div>
 
-                      <div className="flex items-center gap-1 font-semibold">
-                        <IndianRupee className="h-4 w-4" />
-                        {order.totalAmount}
+                      {/* Bill Summary */}
+                      <div className="ml-auto w-40 space-y-1 text-sm">
+                        <div className="flex justify-between text-muted-foreground">
+                          <span>Subtotal</span>
+                          <span>₹{order.subTotal}</span>
+                        </div>
+
+                        <div className="flex justify-between text-muted-foreground">
+                          <span>GST ({order.gstPercent}%)</span>
+                          <span>₹{order.gstAmount}</span>
+                        </div>
+
+                        <div className="flex justify-between font-semibold border-t pt-1 ">
+                          <span>Total</span>
+                          <span className="flex items-center gap-1">
+                            <IndianRupee className="h-4 w-4" />
+                            {order.totalAmount}
+                          </span>
+                        </div>
                       </div>
+
                     </div>
                   </CardContent>
                 </Card>
