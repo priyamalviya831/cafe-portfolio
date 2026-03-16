@@ -157,7 +157,7 @@ export function MenuSection({
             }`}
         >
           {visibleItems.map((item, index) => (
-            <MenuCard key={item.id} item={item} index={index} />
+            <MenuCard key={item.id} item={item} index={index}  disabled={!item.inStock}/>
           ))}
         </motion.div>
       </div>

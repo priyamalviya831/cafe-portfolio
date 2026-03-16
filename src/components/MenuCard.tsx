@@ -12,9 +12,10 @@ import { LAYOUTS } from "@/utils/constants";
 interface MenuCardProps {
   item: MenuItem;
   index: number;
+  disabled?: boolean;
 }
 
-export function MenuCard({ item, index }: MenuCardProps) {
+export function MenuCard({ item, index, disabled }: MenuCardProps) {
   const { addItem, items, updateQuantity } = useCart();
   const { layoutType } = useLayout();
   const isElegant = layoutType === LAYOUTS.ELEGANT;
@@ -30,8 +31,9 @@ export function MenuCard({ item, index }: MenuCardProps) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ delay: index * 0.1 }}
-        whileHover={{ y: -8 }}
-        className="group relative bg-card rounded-lg overflow-hidden shadow-card card-hover"
+        whileHover={!disabled ? { y: -8 } : {}}
+        className={`group relative bg-card rounded-lg overflow-hidden shadow-card 
+  ${disabled ? "opacity-70 pointer-events-none" : "card-hover"}`}
       >
         <div className="relative h-28 md:h-48 lg:h-56 overflow-hidden">
           <img
@@ -39,7 +41,7 @@ export function MenuCard({ item, index }: MenuCardProps) {
             alt={item.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute inset-0 z-10 bg-gradient-to-t from-foreground/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
           {/* Badges */}
           <div className="absolute top-3 left-3 flex gap-2">
@@ -79,6 +81,7 @@ export function MenuCard({ item, index }: MenuCardProps) {
               <Button
                 variant="outline"
                 className="h-7 px-8 py-4 text-md rounded-full"
+                disabled={disabled}
                 onClick={() => {
                   addItem(item);
                   toast.success("Item added to cart.");
@@ -119,6 +122,14 @@ export function MenuCard({ item, index }: MenuCardProps) {
 
           </div>
         </div>
+
+        {disabled && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-[1px]">
+            <span className="text-white text-sm md:text-lg font-semibold px-4 py-2 rounded-md">
+              Out of Stock
+            </span>
+          </div>
+        )}
       </motion.div>
     );
   }
@@ -130,7 +141,8 @@ export function MenuCard({ item, index }: MenuCardProps) {
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
-      className="group flex gap-2 p-2 sm:gap-3 sm:p-3 md:p-4 bg-card rounded-xl md:rounded-2xl shadow-card transition-all duration-300"
+      className={`group flex gap-2 p-2 sm:gap-3 sm:p-3 md:p-4 bg-card rounded-xl md:rounded-2xl shadow-card transition-all duration-300 
+${disabled ? "opacity-50 grayscale pointer-events-none" : "hover:shadow-lg hover:-translate-y-0.5"}`}
     >
 
       <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-24 md:h-24 flex-shrink-0 rounded-lg md:rounded-xl overflow-hidden">
@@ -179,6 +191,7 @@ export function MenuCard({ item, index }: MenuCardProps) {
           <Button
             variant="outline"
             className="h-7 px-4 md:px-8 py-4 text-md rounded-full mt-2"
+            disabled={disabled}
             onClick={() => {
               addItem(item);
               toast.success("Item added to cart.");
@@ -217,6 +230,14 @@ export function MenuCard({ item, index }: MenuCardProps) {
         )}
 
       </div>
+
+      {disabled && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-[0.5px] rounded-xl md:rounded-2xl">
+          <span className="text-white text-lg font-bold px-3 py-1 rounded">
+            Out of Stock
+          </span>
+        </div>
+      )}
     </motion.div>
   );
 }

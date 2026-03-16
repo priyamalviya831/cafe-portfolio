@@ -136,10 +136,10 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
   }, [layoutData]);
 
   const menuItems: MenuItem[] =
-    layoutData?.result?.menus?.map((item: any) => ({
-      ...item,
-      id: item._id,
-    })) || [];
+  layoutData?.result?.menus?.map((item: any) => ({
+    ...item,
+    id: item._id,
+  })) || [];
 
   const categories: string[] = Array.from(
     new Set(menuItems.map((item) => item.category))

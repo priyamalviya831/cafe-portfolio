@@ -59,6 +59,8 @@ export interface MenuItem {
   category: string;
   isPopular?: boolean;
   isNew?: boolean;
+   isActive?: boolean;
+  inStock?: boolean;
 }
 
 export type MenuCategory = 'coffee' | 'tea' | 'pastries' | 'breakfast' | 'lunch' | 'desserts' | 'beverages';
