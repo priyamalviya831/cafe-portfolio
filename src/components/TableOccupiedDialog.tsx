@@ -12,22 +12,24 @@ import {
 type Customer = {
     _id: string;
     name: string;
+    phoneNumber?: string;
 };
 
-type OrderItem = {
+type Menu = {
     _id: string;
     name: string;
     price: number;
+    discountPrice?: number;
+};
+
+type OrderItem = {
+    _id?: string;
+    name: string;
     quantity: number;
-    menuId: {
-        name: string;
-        price: number;
-        discountPrice?: number;
-    };
-    customerId: {
-        _id: string;
-        name: string;
-    };
+    price: number;
+    amount?: number;
+    menuId: Menu;
+    customers: Customer[];
 };
 
 type Order = {
@@ -54,11 +56,19 @@ export function TableOccupiedDialog({
 
     const groupedOrders = order?.items?.reduce<Record<string, OrderItem[]>>(
         (acc, item) => {
-            const name = item.customerId?.name || "Guest";
+            if (item.customers && item.customers.length > 0) {
+                item.customers.forEach((customer) => {
+                    const name = customer.name || "Guest";
 
-            if (!acc[name]) acc[name] = [];
+                    if (!acc[name]) acc[name] = [];
 
-            acc[name].push(item);
+                    acc[name].push(item);
+                });
+            } else {
+                // fallback if no customer
+                if (!acc["Guest"]) acc["Guest"] = [];
+                acc["Guest"].push(item);
+            }
 
             return acc;
         },
