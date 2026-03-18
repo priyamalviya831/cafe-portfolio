@@ -78,6 +78,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       items: items.map((item) => ({
         menuId: item.id,
         quantity: item.quantity,
+        customerId: user._id,
       })),
     };
 

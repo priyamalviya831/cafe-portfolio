@@ -2,8 +2,10 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { LayoutType, CafeConfig, MenuItem } from "@/types/cafe";
 import { useParams, useSearchParams } from "react-router-dom";
 import { LAYOUTS } from "@/utils/constants";
-import {API_ROUTES} from "@/utils/api_constant";
+import { API_ROUTES } from "@/utils/api_constant";
 import { useFetch } from "@/utils/useApi";
+import { useAuth } from "@/context/AuthContext";
+import { TableOccupiedDialog } from "@/components/TableOccupiedDialog";
 
 const ELEGANT_ID = import.meta.env.VITE_ELEGANT_LAYOUT_ID;
 const COZY_ID = import.meta.env.VITE_COZY_LAYOUT_ID;
@@ -42,6 +44,10 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
   const { qrId } = useParams<{ qrId?: string; }>();
   const [searchParams] = useSearchParams();
   const previewLayoutId = searchParams.get("previewLayoutId");
+  const [existingOrder, setExistingOrder] = useState<any>(null);
+  const [showOccupiedModal, setShowOccupiedModal] = useState(false);
+
+  const { user } = useAuth();
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const isPreview = !qrId;
@@ -53,6 +59,27 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
       enabled: true
     }
   );
+
+  const {
+    data: activeOrderData,
+    isLoading: isActiveOrderLoading,
+  } = useFetch(
+    qrId ? ["active-order", qrId] : null,
+    qrId ? `${API_ROUTES.getExistingOrder}/${qrId}` : null,
+    {},
+    {
+      enabled: !!qrId && !!user, // only call when both exist
+    }
+  );
+
+  useEffect(() => {
+
+    console.log(activeOrderData)
+  if (activeOrderData?.result?.active) {
+    setExistingOrder(activeOrderData?.result?.order);
+    setShowOccupiedModal(true);
+  }
+}, [activeOrderData]);
 
   const qrLayoutId = tableData?.result?.layoutId;
   const adminId = tableData?.result?.adminId?._id;
@@ -136,10 +163,10 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
   }, [layoutData]);
 
   const menuItems: MenuItem[] =
-  layoutData?.result?.menus?.map((item: any) => ({
-    ...item,
-    id: item._id,
-  })) || [];
+    layoutData?.result?.menus?.map((item: any) => ({
+      ...item,
+      id: item._id,
+    })) || [];
 
   const categories: string[] = Array.from(
     new Set(menuItems.map((item) => item.category))
@@ -149,27 +176,38 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
     layoutData?.result?.adminId?.gst ?? 5;
 
   return (
-    <LayoutContext.Provider
-      value={{
-        layoutType,
-        config: layoutData?.result,
-        menuItems,
-        categories,
-        gstPercentage,
-        isLayoutFromQR,
-        tableNumber,
-        setTableNumber,
-        isFromQR: !!qrId,
-        isPreview,
-        qrId,
-        isLoading: isLoading || isLayoutLoading,
-        error: layoutError || error,
-        isLoginOpen,
-        setIsLoginOpen,
-      }}
-    >
-      {children}
-    </LayoutContext.Provider>
+    <>
+      <LayoutContext.Provider
+        value={{
+          layoutType,
+          config: layoutData?.result,
+          menuItems,
+          categories,
+          gstPercentage,
+          isLayoutFromQR,
+          tableNumber,
+          setTableNumber,
+          isFromQR: !!qrId,
+          isPreview,
+          qrId,
+          isLoading: isLoading || isLayoutLoading,
+          error: layoutError || error,
+          isLoginOpen,
+          setIsLoginOpen,
+        }}
+      >
+        {children}
+      </LayoutContext.Provider>
+
+      <TableOccupiedDialog
+        open={showOccupiedModal}
+        order={existingOrder}
+        onClose={() => setShowOccupiedModal(false)}
+        onAddItems={() => {
+          setShowOccupiedModal(false);
+        }}
+      />
+    </>
   );
 }
 
