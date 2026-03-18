@@ -19,7 +19,15 @@ type OrderItem = {
     name: string;
     price: number;
     quantity: number;
-    customerId: Customer;
+    menuId: {
+        name: string;
+        price: number;
+        discountPrice?: number;
+    };
+    customerId: {
+        _id: string;
+        name: string;
+    };
 };
 
 type Order = {
@@ -102,11 +110,11 @@ export function TableOccupiedDialog({
                                 py={0.5}
                             >
                                 <Typography>
-                                    {item.quantity} × {item.name}
+                                    {item.quantity} × {item.menuId.name}
                                 </Typography>
 
                                 <Typography>
-                                    ₹{item.quantity * item.price}
+                                    ₹{item.quantity * (item.menuId.discountPrice ?? item.menuId.price)}
                                 </Typography>
                             </Box>
                         ))}
@@ -141,7 +149,7 @@ export function TableOccupiedDialog({
 
             <DialogActions>
                 <Button variant="contained" onClick={onAddItems}>
-                 Continue Ordering
+                    Continue Ordering
                 </Button>
             </DialogActions>
         </Dialog>
