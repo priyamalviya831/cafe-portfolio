@@ -52,11 +52,11 @@ export interface CafeBootstrapResponse {
 export interface MenuItem {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   price: number;
   discountPrice?: number;
   image?: string;
-  category: string;
+  category?: string;
   isPopular?: boolean;
   isNew?: boolean;
    isActive?: boolean;
@@ -69,7 +69,8 @@ export interface CartItem extends MenuItem {
   quantity: number;
 }
 
-export interface Order {
+// client side order type to create order
+export type CreateOrder = {
   id: string;
   items: CartItem[];
   total: number;

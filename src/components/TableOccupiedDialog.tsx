@@ -24,11 +24,10 @@ type Menu = {
 
 type OrderItem = {
     _id?: string;
-    name: string;
+    menu: Menu;       // was `menuId`
     quantity: number;
     price: number;
     amount?: number;
-    menuId: Menu;
     customers: Customer[];
 };
 
@@ -120,11 +119,11 @@ export function TableOccupiedDialog({
                                 py={0.5}
                             >
                                 <Typography>
-                                    {item.quantity} × {item.menuId.name}
+                                    {item.quantity} × {item.menu.name}
                                 </Typography>
 
                                 <Typography>
-                                    ₹{item.quantity * (item.menuId.discountPrice ?? item.menuId.price)}
+                                    ₹{item.quantity * (item.menu.discountPrice ?? item.menu.price)}
                                 </Typography>
                             </Box>
                         ))}

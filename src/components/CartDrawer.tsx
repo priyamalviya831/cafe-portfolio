@@ -9,16 +9,18 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { LAYOUTS } from "@/utils/constants";
 import { usePost } from "@/utils/useApi";
-import {API_ROUTES} from "@/utils/api_constant";
+import { API_ROUTES } from "@/utils/api_constant";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { FeedbackModal } from "@/components/FeedbackModal";
+import { ServerOrder } from "@/pages/MyOrders";
 
 interface CartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  editingOrder?: ServerOrder;
 }
 
-export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
+export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
   const { items, updateQuantity, removeItem, clearCart, total } = useCart();
   const { layoutType, gstPercentage, tableNumber, setIsLoginOpen, config } = useLayout();
   const { user } = useAuth();
@@ -64,6 +66,21 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     }
   );
 
+  const { mutate: updateOrder, isPending: isUpdating } = usePost(
+    API_ROUTES.updateOrder, // ⚠️ You need to define this API
+    {
+      onSuccess: () => {
+        toast.success("Order updated successfully!");
+        clearCart();
+        setNotes("");
+        onClose();
+      },
+      onError: (error: any) => {
+        toast.error(error.message || "Failed to update order");
+      },
+    }
+  );
+
   const handlePlaceOrder = () => {
     if (!user?._id) {
       toast.error("Please login to place your order");
@@ -85,12 +102,12 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     placeOrder(payload);
   };
 
-  const { mutate: submitFeedback } = usePost(API_ROUTES.submitFeedback , 
+  const { mutate: submitFeedback } = usePost(API_ROUTES.submitFeedback,
     {
       onSuccess: () => {
         toast.success("Thank you for your feedback!");
-        }
       }
+    }
   );
 
   const handleFeedbackSubmit = (data: any) => {
