@@ -12,7 +12,7 @@ import { useLayout } from '@/context/LayoutContext';
 
 const LayoutContent = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { itemCount, total } = useCart(); // ✅ SAFE HERE
+  const { itemCount, total, isOpen } = useCart(); // ✅ SAFE HERE
 
   const [showLogin, setShowLogin] = useState(false);
   const location = useLocation();
@@ -43,7 +43,7 @@ const LayoutContent = () => {
 
       {/* 🔥 SLIDE UP CART BUTTON */}
       <AnimatePresence>
-        {itemCount > 0 && !isCartOpen && (
+        {itemCount > 0 && !isOpen && (
           <motion.div
             initial={{ y: 120, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

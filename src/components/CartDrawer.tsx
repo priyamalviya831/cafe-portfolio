@@ -4,7 +4,7 @@ import { useCart } from "@/context/CartContext";
 import { useLayout } from "@/context/LayoutContext";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { LAYOUTS } from "@/utils/constants";
@@ -21,7 +21,15 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
-  const { items, updateQuantity, removeItem, clearCart, total } = useCart();
+  const {
+    items,
+    updateQuantity,
+    removeItem,
+    clearCart,
+    total,
+    setEditingOrderId,
+    setIsOpen,
+  } = useCart();
   const { layoutType, gstPercentage, tableNumber, setIsLoginOpen, config } = useLayout();
   const { user } = useAuth();
   const adminId = config?.adminId?._id;
@@ -30,8 +38,27 @@ export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
 
   const location = useLocation();
 
-  const goToMenu = () => {
+  useEffect(() => {
+    setIsOpen(isOpen);
+  }, [isOpen, setIsOpen]);
+
+  const handleClose = () => {
+    if (editingOrder) {
+      clearCart();
+      setNotes("");
+    }
     onClose();
+    setEditingOrderId(null);
+  };
+
+  const clearForm = () => {
+    clearCart();
+    setNotes("");
+    handleClose();
+  };
+
+  const goToMenu = () => {
+    handleClose();
 
     if (location.pathname.endsWith("/menu")) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -53,11 +80,9 @@ export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
   const { mutate: placeOrder, isPending } = usePost(
     API_ROUTES.placeOrder,
     {
-      onSuccess: (response: any) => {
+      onSuccess: () => {
         toast.success("Order placed successfully!");
-        clearCart();
-        setNotes("");
-        onClose();
+        clearForm();
         setIsFeedbackOpen(true);
       },
       onError: (error: any) => {
@@ -66,22 +91,12 @@ export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
     }
   );
 
-  const { mutate: updateOrder, isPending: isUpdating } = usePost(
-    API_ROUTES.updateOrder, // ⚠️ You need to define this API
-    {
-      onSuccess: () => {
-        toast.success("Order updated successfully!");
-        clearCart();
-        setNotes("");
-        onClose();
-      },
-      onError: (error: any) => {
-        toast.error(error.message || "Failed to update order");
-      },
-    }
-  );
-
   const handlePlaceOrder = () => {
+    if (editingOrder) {
+      clearForm();
+      return;
+    }
+
     if (!user?._id) {
       toast.error("Please login to place your order");
       setIsLoginOpen(true);
@@ -130,7 +145,7 @@ export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={onClose}
+              onClick={handleClose}
               className="fixed inset-0 bg-foreground/50 backdrop-blur-sm z-50"
             />
 
@@ -147,7 +162,7 @@ export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
                   <ShoppingBag className="h-5 w-5 text-primary" />
                   <h2 className="font-display text-xl font-medium">Your Order</h2>
                 </div>
-                <Button variant="ghost" size="icon" onClick={onClose}>
+                <Button variant="ghost" size="icon" onClick={handleClose}>
                   <X className="h-5 w-5" />
                 </Button>
               </div>
@@ -266,10 +281,14 @@ export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
                       ? "bg-primary text-primary-foreground"
                       : "bg-accent text-accent-foreground rounded-xl"
                       }`}
-                    onClick={handlePlaceOrder}
-                    disabled={isPending}
+                    onClick={editingOrder ? clearForm : handlePlaceOrder}
+                    disabled={!editingOrder && isPending}
                   >
-                    {isPending ? "Placing Order..." : "Place Order"}
+                    {editingOrder
+                      ? "Done"
+                      : isPending
+                        ? "Placing Order..."
+                        : "Place Order"}
                   </Button>
                 </div>
               )}

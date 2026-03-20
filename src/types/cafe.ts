@@ -67,6 +67,10 @@ export type MenuCategory = 'coffee' | 'tea' | 'pastries' | 'breakfast' | 'lunch'
 
 export interface CartItem extends MenuItem {
   quantity: number;
+  // Present when editing an existing order item
+  orderItemId?: string;
+  // Original menu id when cart item represents an order item
+  menuId?: string;
 }
 
 // client side order type to create order

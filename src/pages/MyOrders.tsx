@@ -39,6 +39,7 @@ interface OrderItemStatus {
   menuId: string;
   quantity: number;
   status: "pending" | "preparing" | "served";
+  customerId?: string;
 }
 
 // this comes from the API response 
@@ -70,7 +71,7 @@ const itemStatusStyles: Record<string, string> = {
 
 export function MyOrders() {
   const { user } = useAuth();
-  const { setCartItems } = useCart();
+  const { setCartItems, setEditingOrderId } = useCart();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [orders, setOrders] = useState<ServerOrder[]>([]);
   const [editingOrder, setEditingOrder] = useState<ServerOrder | null>(null);
@@ -87,7 +88,7 @@ export function MyOrders() {
     }
   }, [location.state]);
 
-  const { data, isLoading } = useFetch(
+  const { data, isLoading, refetch } = useFetch(
     "customer-orders",
     API_ROUTES.getCustomerOrder,
     { userId: user?._id },
@@ -176,6 +177,11 @@ export function MyOrders() {
           <div className="space-y-6">
             {orders.map((order, index) => {
               const orderStatus = order.isCompleted ? "completed" : "pending";
+              const hasEditableItems = order.orderItems.some(
+                (item) =>
+                  item.status === "pending" &&
+                  item.customerId?.toString() === user?._id?.toString()
+              );
 
               return (
                 <motion.div
@@ -249,23 +255,31 @@ export function MyOrders() {
 
                       </div>
 
-                      {!order.isCompleted && (
+                      {!order.isCompleted && hasEditableItems && (
                         <button
                           onClick={() => {
                             const pendingItems: CartItem[] = order.orderItems
-                              .filter(item => item.status === "pending")
+                              .filter(
+                                (item) =>
+                                  item.status === "pending" &&
+                                  item.customerId?.toString() ===
+                                  user?._id?.toString()
+                              )
                               .map(item => {
                                 const menu = order.items.find(i => i.menu._id === item.menuId)?.menu;
                                 return {
-                                  id: item.menuId,
+                                  id: item._id,
+                                  menuId: item.menuId,
                                   name: menu?.name ?? "",
                                   price: menu?.price ?? 0,
                                   discountPrice: menu?.discountPrice ?? menu?.price ?? 0,
-                                  quantity: item.quantity
+                                  quantity: item.quantity,
+                                  orderItemId: item._id,
                                 };
                               });
 
                             setCartItems(pendingItems);
+                            setEditingOrderId(order._id);
                             setEditingOrder(order);
                             setIsEditingCartOpen(true);
                           }}
@@ -284,7 +298,11 @@ export function MyOrders() {
       </section>
       <CartDrawer
         isOpen={isEditingCartOpen}
-        onClose={() => setIsEditingCartOpen(false)}
+        onClose={() => {
+          setIsEditingCartOpen(false);
+          setEditingOrder(null);
+          refetch();
+        }}
         editingOrder={editingOrder}
       />
     </>

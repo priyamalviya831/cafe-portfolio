@@ -117,10 +117,12 @@ export function Header({ onCartClick }: HeaderProps) {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 onClick={() => navigate(`${basePath}/my-orders`)}
-                className={`hidden md:flex ${location.pathname.includes("my-orders")
+                className={`flex items-center justify-center ${location.pathname.includes("my-orders")
                   ? "text-primary"
                   : "text-foreground"
                   }`}
+                aria-label="My orders"
+                title="My orders"
               >
                 <ClipboardList className="h-5 w-5" />
               </motion.button>

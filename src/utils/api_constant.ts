@@ -1,5 +1,3 @@
-import { get } from "http";
-
 const API_ROUTES = {
     createCustomer: "customer/create",
     // getLayoutById: 'layout/portfolio',
@@ -12,6 +10,8 @@ const API_ROUTES = {
     submitFeedback: "portfolio/customer-feedback",
     topFeedback: "portfolio/top-feedback",
 
-    getExistingOrder :"order/active"
+    getExistingOrder :"order/active",
+    updateOrderItem: "order/public/item-quantity",
+    deleteOrderItem: "order/public/item"
 }
 export {API_ROUTES};
