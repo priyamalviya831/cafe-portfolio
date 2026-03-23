@@ -40,6 +40,7 @@ interface OrderItemStatus {
   quantity: number;
   status: "pending" | "preparing" | "served";
   customerId?: string;
+  specialInstruction?: string;
 }
 
 // this comes from the API response 
@@ -340,7 +341,13 @@ export function MyOrders() {
                                   {item.status}
                                 </span>
                               </div>
+                              {item.specialInstruction && (
+                                <p className="text-xs italic text-muted-foreground ml-1">
+                                  “{item.specialInstruction}”
+                                </p>
+                              )}
                               <span>₹{(menu?.discountPrice ?? menu?.price ?? 0) * item.quantity}</span>
+
                             </div>
                           );
                         })}

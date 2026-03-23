@@ -107,13 +107,13 @@ export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
     }
 
     const payload = {
-      customerId: user._id,
-      specialInstruction: notes,
+      adminId,
       tableNumber,
+      customerId: user._id,
       items: items.map((item) => ({
         menuId: item.id,
         quantity: item.quantity,
-        customerId: user._id,
+        specialInstruction: notes,
       })),
     };
 
