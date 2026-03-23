@@ -1,11 +1,9 @@
 import { CartProvider } from '@/context/CartContext';
-import { NotificationProvider } from "@/context/NotificationContext";
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CartDrawer } from '@/components/CartDrawer';
 import { useEffect, useState } from "react";
-import {LoginPopup} from "@/components/LoginPopup";
-import { useAuth } from "@/context/AuthContext";
+import { LoginPopup } from "@/components/LoginPopup";
 import { useCart } from '@/context/CartContext';
 import { motion, AnimatePresence } from "framer-motion";
 import { Outlet, useLocation } from "react-router-dom";
@@ -69,11 +67,9 @@ const LayoutContent = () => {
 const Index = () => {
   return (
     <CartProvider>
-      <NotificationProvider>
-        <LayoutContent />
-      </NotificationProvider>
+      <LayoutContent />
     </CartProvider>
   );
 };
 
-export {Index};
+export { Index };

@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
+import { queryClient } from "@/App";
 import { LAYOUTS } from "@/utils/constants";
 import { usePost } from "@/utils/useApi";
 import { API_ROUTES } from "@/utils/api_constant";
@@ -82,6 +83,7 @@ export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
     {
       onSuccess: () => {
         toast.success("Order placed successfully!");
+        queryClient.invalidateQueries({ queryKey: ["customer-orders"] })
         clearForm();
         setIsFeedbackOpen(true);
       },

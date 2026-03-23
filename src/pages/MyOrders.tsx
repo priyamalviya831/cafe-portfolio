@@ -94,7 +94,7 @@ export function MyOrders() {
     "customer-orders",
     API_ROUTES.getCustomerOrder,
     { userId: user?._id },
-    { enabled: !!(user?._id), refetchInterval: 5000, refetchIntervalInBackground: true }
+    { enabled: !!(user?._id) }
   );
   const refetchRef = useRef(refetch);
 
@@ -208,10 +208,10 @@ export function MyOrders() {
               orderItems: o.orderItems.map(oi =>
                 oi._id === orderItemId
                   ? {
-                      ...oi,
-                      ...(status ? { status } : {}),
-                      ...(typeof quantity === "number" ? { quantity } : {}),
-                    }
+                    ...oi,
+                    ...(status ? { status } : {}),
+                    ...(typeof quantity === "number" ? { quantity } : {}),
+                  }
                   : oi
               ),
             };
