@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock, Edit, IndianRupee } from "lucide-react";
 import { CartDrawer } from "@/components/CartDrawer";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { API_ROUTES } from "@/utils/api_constant";
 import { useFetch } from "@/utils/useApi";
 import { useAuth } from "@/context/AuthContext";
@@ -76,6 +76,8 @@ export function MyOrders() {
   const [orders, setOrders] = useState<ServerOrder[]>([]);
   const [editingOrder, setEditingOrder] = useState<ServerOrder | null>(null);
   const [isEditingCartOpen, setIsEditingCartOpen] = useState(false);
+  const ordersRef = useRef<ServerOrder[]>([]);
+  const lastToastRef = useRef<Map<string, number>>(new Map());
 
   const location = useLocation();
 
@@ -92,8 +94,9 @@ export function MyOrders() {
     "customer-orders",
     API_ROUTES.getCustomerOrder,
     { userId: user?._id },
-    { enabled: !!(user?._id) }
+    { enabled: !!(user?._id), refetchInterval: 5000, refetchIntervalInBackground: true }
   );
+  const refetchRef = useRef(refetch);
 
   const getItemStatusBreakdown = (order: ServerOrder, item: OrderItem) => {
     const relatedItems = order.orderItems.filter(
@@ -119,6 +122,14 @@ export function MyOrders() {
   }, [data]);
 
   useEffect(() => {
+    ordersRef.current = orders;
+  }, [orders]);
+
+  useEffect(() => {
+    refetchRef.current = refetch;
+  }, [refetch]);
+
+  useEffect(() => {
     if (!user?._id) return;
 
     socket.connect();
@@ -138,22 +149,137 @@ export function MyOrders() {
       });
     };
 
-    const handleStatusUpdate = ({ orderId, order }: any) => {
+    const applyOrderUpdate = (orderId: string, next: Partial<ServerOrder>) => {
       setOrders(prev =>
-        prev.map(o => (o._id === orderId ? order : o))
-      );
-
-      toast.success(
-        `Order #${order.tableNumber} is now ${order.orderStatus}`,
+        prev.map(o => (o._id === orderId ? { ...o, ...next } : o))
       );
     };
 
+    const handleOrderStatusUpdate = (payload: any) => {
+      const orderId = payload?.orderId ?? payload?.order?._id;
+      const order = payload?.order;
+      if (!orderId) return;
+
+      if (order) {
+        setOrders(prev => prev.map(o => (o._id === orderId ? order : o)));
+        const statusText = order.isCompleted ? "completed" : "pending";
+        const key = `order:${orderId}:${statusText}`;
+        const now = Date.now();
+        const last = lastToastRef.current.get(key) ?? 0;
+        if (now - last > 4000) {
+          toast.success(`Order #${order.tableNumber} is now ${statusText}`);
+          lastToastRef.current.set(key, now);
+        }
+        return;
+      }
+
+      if (typeof payload?.isCompleted === "boolean") {
+        applyOrderUpdate(orderId, { isCompleted: payload.isCompleted });
+        const statusText = payload.isCompleted ? "completed" : "pending";
+        const key = `order:${orderId}:${statusText}`;
+        const now = Date.now();
+        const last = lastToastRef.current.get(key) ?? 0;
+        if (now - last > 4000) {
+          toast.success(`Order #${payload.tableNumber ?? ""} is now ${statusText}`.trim());
+          lastToastRef.current.set(key, now);
+        }
+      }
+    };
+
+    const handleOrderItemStatusUpdate = (payload: any) => {
+      const orderId = payload?.orderId ?? payload?.order?._id;
+      const orderItemId = payload?.orderItemId ?? payload?.orderItem?._id;
+      const status = payload?.status ?? payload?.orderItem?.status;
+      const quantity = payload?.quantity ?? payload?.orderItem?.quantity;
+      const order = payload?.order;
+
+      if (!orderId) return;
+
+      if (order) {
+        setOrders(prev => prev.map(o => (o._id === orderId ? order : o)));
+      } else if (Array.isArray(payload?.orderItems)) {
+        applyOrderUpdate(orderId, { orderItems: payload.orderItems });
+      } else if (orderItemId && (status || typeof quantity === "number")) {
+        setOrders(prev =>
+          prev.map(o => {
+            if (o._id !== orderId) return o;
+            return {
+              ...o,
+              orderItems: o.orderItems.map(oi =>
+                oi._id === orderItemId
+                  ? {
+                      ...oi,
+                      ...(status ? { status } : {}),
+                      ...(typeof quantity === "number" ? { quantity } : {}),
+                    }
+                  : oi
+              ),
+            };
+          })
+        );
+      }
+
+      if (status || typeof quantity === "number") {
+        const currentOrder = ordersRef.current.find(o => o._id === orderId);
+        const menuId =
+          payload?.menuId ??
+          payload?.orderItem?.menuId ??
+          currentOrder?.orderItems.find(oi => oi._id === orderItemId)?.menuId;
+        const menuName =
+          currentOrder?.items.find(i => i.menu._id === menuId)?.menu?.name ??
+          "Item";
+        const tableLabel = currentOrder?.tableNumber
+          ? ` on Table #${currentOrder.tableNumber}`
+          : "";
+        if (status) {
+          const key = `item:${orderId}:${orderItemId}:${status}`;
+          const now = Date.now();
+          const last = lastToastRef.current.get(key) ?? 0;
+          if (now - last > 4000) {
+            toast.success(`${menuName} is now ${status}${tableLabel}`);
+            lastToastRef.current.set(key, now);
+          }
+        } else if (typeof quantity === "number") {
+          const key = `item:${orderId}:${orderItemId}:qty:${quantity}`;
+          const now = Date.now();
+          const last = lastToastRef.current.get(key) ?? 0;
+          if (now - last > 4000) {
+            toast.success(`${menuName} quantity updated${tableLabel}`);
+            lastToastRef.current.set(key, now);
+          }
+        }
+      }
+    };
+
     socket.on("order:new", handleNewOrder);
-    socket.on("order:statusUpdated", handleStatusUpdate);
+    socket.on("order:statusUpdated", handleOrderStatusUpdate);
+    socket.on("order:itemStatusUpdated", handleOrderItemStatusUpdate);
+    socket.on("orderItem:statusUpdated", handleOrderItemStatusUpdate);
+    const handleAny = (event: string, payload: any) => {
+      if (
+        event === "order:new" ||
+        event === "order:statusUpdated" ||
+        event === "order:itemStatusUpdated" ||
+        event === "orderItem:statusUpdated"
+      ) {
+        return;
+      }
+      if (payload?.orderId || payload?.order?._id || payload?.orderItems || payload?.orderItem) {
+        refetchRef.current();
+        return;
+      }
+      if (event.toLowerCase().includes("order")) {
+        refetchRef.current();
+      }
+    };
+    socket.onAny(handleAny);
 
     return () => {
       socket.off("order:new", handleNewOrder);
-      socket.off("order:statusUpdated", handleStatusUpdate);
+      socket.off("order:statusUpdated", handleOrderStatusUpdate);
+      socket.off("order:itemStatusUpdated", handleOrderItemStatusUpdate);
+      socket.off("orderItem:statusUpdated", handleOrderItemStatusUpdate);
+      socket.offAny(handleAny);
     };
   }, []);
 

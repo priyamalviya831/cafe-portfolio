@@ -93,6 +93,7 @@ export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
 
   const handlePlaceOrder = () => {
     if (editingOrder) {
+      toast.success("Order updated successfully!");
       clearForm();
       return;
     }
@@ -281,7 +282,7 @@ export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
                       ? "bg-primary text-primary-foreground"
                       : "bg-accent text-accent-foreground rounded-xl"
                       }`}
-                    onClick={editingOrder ? clearForm : handlePlaceOrder}
+                    onClick={handlePlaceOrder}
                     disabled={!editingOrder && isPending}
                   >
                     {editingOrder

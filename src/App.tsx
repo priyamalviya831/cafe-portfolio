@@ -4,6 +4,7 @@ import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
 import rtlPlugin from "stylis-plugin-rtl";
 import { Toaster } from "react-hot-toast";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import {Index} from "./pages/Index";
 import {NotFound} from "./pages/NotFound";
@@ -49,6 +50,7 @@ export default function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Toaster position="bottom-right" reverseOrder={false} />
+              <SonnerToaster />
             </BrowserRouter>
           </AuthProvider>
         </TooltipProvider>
