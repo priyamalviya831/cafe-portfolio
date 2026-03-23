@@ -28,10 +28,10 @@ export function MenuSection({
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!activeCategory && (categories?.length ?? 0)) {
+    if (mode === "section" && !activeCategory && (categories?.length ?? 0)) {
       setActiveCategory(categories[0]);
     }
-  }, [categories, activeCategory]);
+  }, [categories, activeCategory, mode]);
 
   if (!(menuItems?.length ?? 0)) {
     return (
@@ -42,9 +42,10 @@ export function MenuSection({
   }
 
   const allItems = forceItems ?? menuItems;
-  const filteredItems = activeCategory
-    ? allItems.filter(item => item.category === activeCategory)
-    : [];
+  const filteredItems =
+    activeCategory
+      ? allItems.filter(item => item.category === activeCategory)
+      : allItems;
 
   const visibleItems = showAll
     ? filteredItems
@@ -157,7 +158,7 @@ export function MenuSection({
             }`}
         >
           {visibleItems.map((item, index) => (
-            <MenuCard key={item.id} item={item} index={index}  disabled={!item.inStock}/>
+            <MenuCard key={item.id} item={item} index={index} disabled={!item.inStock} />
           ))}
         </motion.div>
       </div>
