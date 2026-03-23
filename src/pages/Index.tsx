@@ -1,4 +1,5 @@
 import { CartProvider } from '@/context/CartContext';
+import { NotificationProvider } from "@/context/NotificationContext";
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CartDrawer } from '@/components/CartDrawer';
@@ -68,7 +69,9 @@ const LayoutContent = () => {
 const Index = () => {
   return (
     <CartProvider>
-      <LayoutContent />
+      <NotificationProvider>
+        <LayoutContent />
+      </NotificationProvider>
     </CartProvider>
   );
 };
