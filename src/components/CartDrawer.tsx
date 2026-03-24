@@ -4,22 +4,33 @@ import { useCart } from "@/context/CartContext";
 import { useLayout } from "@/context/LayoutContext";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
+import { queryClient } from "@/App";
 import { LAYOUTS } from "@/utils/constants";
 import { usePost } from "@/utils/useApi";
-import {API_ROUTES} from "@/utils/api_constant";
+import { API_ROUTES } from "@/utils/api_constant";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { FeedbackModal } from "@/components/FeedbackModal";
+import { ServerOrder } from "@/pages/MyOrders";
 
 interface CartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  editingOrder?: ServerOrder;
 }
 
-export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
-  const { items, updateQuantity, removeItem, clearCart, total } = useCart();
+export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
+  const {
+    items,
+    updateQuantity,
+    removeItem,
+    clearCart,
+    total,
+    setEditingOrderId,
+    setIsOpen,
+  } = useCart();
   const { layoutType, gstPercentage, tableNumber, setIsLoginOpen, config } = useLayout();
   const { user } = useAuth();
   const adminId = config?.adminId?._id;
@@ -28,8 +39,27 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
   const location = useLocation();
 
-  const goToMenu = () => {
+  useEffect(() => {
+    setIsOpen(isOpen);
+  }, [isOpen, setIsOpen]);
+
+  const handleClose = () => {
+    if (editingOrder) {
+      clearCart();
+      setNotes("");
+    }
     onClose();
+    setEditingOrderId(null);
+  };
+
+  const clearForm = () => {
+    clearCart();
+    setNotes("");
+    handleClose();
+  };
+
+  const goToMenu = () => {
+    handleClose();
 
     if (location.pathname.endsWith("/menu")) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -51,20 +81,25 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { mutate: placeOrder, isPending } = usePost(
     API_ROUTES.placeOrder,
     {
-      onSuccess: (response: any) => {
+      onSuccess: () => {
         toast.success("Order placed successfully!");
-        clearCart();
-        setNotes("");
-        onClose();
+        queryClient.invalidateQueries({ queryKey: ["customer-orders"] })
+        clearForm();
         setIsFeedbackOpen(true);
       },
-      onError: (error: any) => {
-        toast.error(error.message || "Failed to place order");
+      onError: (error) => {
+        toast.error(error ?? "Failed to place order");
       },
     }
   );
 
   const handlePlaceOrder = () => {
+    if (editingOrder) {
+      toast.success("Order updated successfully!");
+      clearForm();
+      return;
+    }
+
     if (!user?._id) {
       toast.error("Please login to place your order");
       setIsLoginOpen(true);
@@ -72,24 +107,25 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     }
 
     const payload = {
-      customerId: user._id,
-      specialInstruction: notes,
+      adminId,
       tableNumber,
+      customerId: user._id,
       items: items.map((item) => ({
         menuId: item.id,
         quantity: item.quantity,
+        specialInstruction: notes,
       })),
     };
 
     placeOrder(payload);
   };
 
-  const { mutate: submitFeedback } = usePost(API_ROUTES.submitFeedback , 
+  const { mutate: submitFeedback } = usePost(API_ROUTES.submitFeedback,
     {
       onSuccess: () => {
         toast.success("Thank you for your feedback!");
-        }
       }
+    }
   );
 
   const handleFeedbackSubmit = (data: any) => {
@@ -112,7 +148,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={onClose}
+              onClick={handleClose}
               className="fixed inset-0 bg-foreground/50 backdrop-blur-sm z-50"
             />
 
@@ -129,7 +165,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <ShoppingBag className="h-5 w-5 text-primary" />
                   <h2 className="font-display text-xl font-medium">Your Order</h2>
                 </div>
-                <Button variant="ghost" size="icon" onClick={onClose}>
+                <Button variant="ghost" size="icon" onClick={handleClose}>
                   <X className="h-5 w-5" />
                 </Button>
               </div>
@@ -166,7 +202,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             {item.name}
                           </h4>
                           <p className="text-sm text-muted-foreground">
-                            ₹{item.discountPrice.toFixed(2)} each
+                            ₹{(item.discountPrice ?? item.price).toFixed(2)} each
                           </p>
                         </div>
 
@@ -249,9 +285,13 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       : "bg-accent text-accent-foreground rounded-xl"
                       }`}
                     onClick={handlePlaceOrder}
-                    disabled={isPending}
+                    disabled={!editingOrder && isPending}
                   >
-                    {isPending ? "Placing Order..." : "Place Order"}
+                    {editingOrder
+                      ? "Done"
+                      : isPending
+                        ? "Placing Order..."
+                        : "Place Order"}
                   </Button>
                 </div>
               )}
