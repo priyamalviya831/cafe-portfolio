@@ -1,7 +1,13 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock, Edit, IndianRupee } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Clock, Edit, IndianRupee, MessageSquare } from "lucide-react";
 import { CartDrawer } from "@/components/CartDrawer";
 import { useEffect, useRef, useState } from "react";
 import { API_ROUTES } from "@/utils/api_constant";
@@ -43,21 +49,20 @@ interface OrderItemStatus {
   specialInstruction?: string;
 }
 
-// this comes from the API response 
 export type ServerOrder = {
   _id: string;
   tableNumber: number;
   items: OrderItem[];
-  orderItems: OrderItemStatus[]; // ✅ NEW
+  orderItems: OrderItemStatus[];
   specialInstruction?: string;
   totalAmount: number;
   subTotal: number;
   gstAmount: number;
   gstPercent: number;
-  isCompleted: boolean; // ✅ replaces orderStatus
+  isCompleted: boolean;
   paymentStatus: boolean;
   createdAt: string;
-}
+};
 
 const statusStyles: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -84,8 +89,8 @@ export function MyOrders() {
 
   useEffect(() => {
     if (location.state?.order) {
-      setOrders(prev => {
-        const exists = prev.find(o => o._id === location.state.order._id);
+      setOrders((prev) => {
+        const exists = prev.find((o) => o._id === location.state.order._id);
         return exists ? prev : [location.state.order, ...prev];
       });
     }
@@ -98,23 +103,6 @@ export function MyOrders() {
     { enabled: !!(user?._id) }
   );
   const refetchRef = useRef(refetch);
-
-  const getItemStatusBreakdown = (order: ServerOrder, item: OrderItem) => {
-    const relatedItems = order.orderItems.filter(
-      (oi) => oi.menuId === item.menu._id
-    );
-    const breakdown = {
-      pending: 0,
-      preparing: 0,
-      served: 0,
-    };
-
-    relatedItems.forEach((oi) => {
-      breakdown[oi.status]++;
-    });
-
-    return breakdown;
-  };
 
   useEffect(() => {
     if (data?.result?.results) {
@@ -132,10 +120,8 @@ export function MyOrders() {
 
   useEffect(() => {
     if (!user?._id) return;
-
     socket.connect();
     socket.emit("join-customer", user._id.toString());
-
     return () => {
       socket.off();
       socket.disconnect();
@@ -144,15 +130,15 @@ export function MyOrders() {
 
   useEffect(() => {
     const handleNewOrder = (order: ServerOrder) => {
-      setOrders(prev => {
-        const exists = prev.find(o => o._id === order._id);
+      setOrders((prev) => {
+        const exists = prev.find((o) => o._id === order._id);
         return exists ? prev : [order, ...prev];
       });
     };
 
     const applyOrderUpdate = (orderId: string, next: Partial<ServerOrder>) => {
-      setOrders(prev =>
-        prev.map(o => (o._id === orderId ? { ...o, ...next } : o))
+      setOrders((prev) =>
+        prev.map((o) => (o._id === orderId ? { ...o, ...next } : o))
       );
     };
 
@@ -162,7 +148,7 @@ export function MyOrders() {
       if (!orderId) return;
 
       if (order) {
-        setOrders(prev => prev.map(o => (o._id === orderId ? order : o)));
+        setOrders((prev) => prev.map((o) => (o._id === orderId ? order : o)));
         const statusText = order.isCompleted ? "completed" : "pending";
         const key = `order:${orderId}:${statusText}`;
         const now = Date.now();
@@ -181,7 +167,9 @@ export function MyOrders() {
         const now = Date.now();
         const last = lastToastRef.current.get(key) ?? 0;
         if (now - last > 4000) {
-          toast.success(`Order #${payload.tableNumber ?? ""} is now ${statusText}`.trim());
+          toast.success(
+            `Order #${payload.tableNumber ?? ""} is now ${statusText}`.trim()
+          );
           lastToastRef.current.set(key, now);
         }
       }
@@ -197,16 +185,16 @@ export function MyOrders() {
       if (!orderId) return;
 
       if (order) {
-        setOrders(prev => prev.map(o => (o._id === orderId ? order : o)));
+        setOrders((prev) => prev.map((o) => (o._id === orderId ? order : o)));
       } else if (Array.isArray(payload?.orderItems)) {
         applyOrderUpdate(orderId, { orderItems: payload.orderItems });
       } else if (orderItemId && (status || typeof quantity === "number")) {
-        setOrders(prev =>
-          prev.map(o => {
+        setOrders((prev) =>
+          prev.map((o) => {
             if (o._id !== orderId) return o;
             return {
               ...o,
-              orderItems: o.orderItems.map(oi =>
+              orderItems: o.orderItems.map((oi) =>
                 oi._id === orderItemId
                   ? {
                     ...oi,
@@ -221,13 +209,13 @@ export function MyOrders() {
       }
 
       if (status || typeof quantity === "number") {
-        const currentOrder = ordersRef.current.find(o => o._id === orderId);
+        const currentOrder = ordersRef.current.find((o) => o._id === orderId);
         const menuId =
           payload?.menuId ??
           payload?.orderItem?.menuId ??
-          currentOrder?.orderItems.find(oi => oi._id === orderItemId)?.menuId;
+          currentOrder?.orderItems.find((oi) => oi._id === orderItemId)?.menuId;
         const menuName =
-          currentOrder?.items.find(i => i.menu._id === menuId)?.menu?.name ??
+          currentOrder?.items.find((i) => i.menu._id === menuId)?.menu?.name ??
           "Item";
         const tableLabel = currentOrder?.tableNumber
           ? ` on Table #${currentOrder.tableNumber}`
@@ -256,6 +244,7 @@ export function MyOrders() {
     socket.on("order:statusUpdated", handleOrderStatusUpdate);
     socket.on("order:itemStatusUpdated", handleOrderItemStatusUpdate);
     socket.on("orderItem:statusUpdated", handleOrderItemStatusUpdate);
+
     const handleAny = (event: string, payload: any) => {
       if (
         event === "order:new" ||
@@ -265,7 +254,12 @@ export function MyOrders() {
       ) {
         return;
       }
-      if (payload?.orderId || payload?.order?._id || payload?.orderItems || payload?.orderItem) {
+      if (
+        payload?.orderId ||
+        payload?.order?._id ||
+        payload?.orderItems ||
+        payload?.orderItem
+      ) {
         refetchRef.current();
         return;
       }
@@ -293,151 +287,196 @@ export function MyOrders() {
   }
 
   return (
+    <TooltipProvider>
+      <>
+        <section className="container mx-auto px-3 sm:px-4 pt-24 pb-10 max-w-2xl">
+          <h1 className="font-display text-2xl sm:text-3xl mb-6 sm:mb-8">
+            My Orders
+          </h1>
 
-    <>
-      <section className="container mx-auto px-4 pt-24 pb-10">
-        <h1 className="font-display text-3xl mb-8">My Orders</h1>
+          {orders.length === 0 ? (
+            <p className="text-muted-foreground">No orders found.</p>
+          ) : (
+            <div className="space-y-4 sm:space-y-6">
+              {orders.map((order, index) => {
+                const orderStatus = order.isCompleted ? "completed" : "pending";
+                const hasEditableItems = order.orderItems.some(
+                  (item) =>
+                    item.status === "pending" &&
+                    item.customerId?.toString() === user?._id?.toString()
+                );
 
-        {orders.length === 0 ? (
-          <p className="text-muted-foreground">No orders found.</p>
-        ) : (
-          <div className="space-y-6">
-            {orders.map((order, index) => {
-              const orderStatus = order.isCompleted ? "completed" : "pending";
-              const hasEditableItems = order.orderItems.some(
-                (item) =>
-                  item.status === "pending" &&
-                  item.customerId?.toString() === user?._id?.toString()
-              );
+                return (
+                  <motion.div
+                    key={order._id}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Card className="shadow-md relative">
+                      <CardContent className="p-4 sm:p-5 space-y-4">
 
-              return (
-                <motion.div
-                  key={order._id}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card className="shadow-md relative">
-                    <CardContent className="p-5 space-y-4">
-
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="text-sm text-muted-foreground mt-1">
+                        {/* Header: Table # and status badge */}
+                        <div className="flex justify-between items-center">
+                          <p className="text-sm font-medium text-muted-foreground">
                             Table #{order.tableNumber}
                           </p>
-                        </div>
-                        <Badge className={`capitalize ${statusStyles[orderStatus]}`}>
-                          {orderStatus}
-                        </Badge>
-                      </div>
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              className={`capitalize ${statusStyles[orderStatus]}`}
+                            >
+                              {orderStatus}
+                            </Badge>
+                            {!order.isCompleted && hasEditableItems && (
+                              <button
+                                className="p-1.5 rounded-md hover:bg-muted transition-colors"
+                                onClick={() => {
+                                  const pendingItems: CartItem[] =
+                                    order.orderItems
+                                      .filter(
+                                        (item) =>
+                                          item.status === "pending" &&
+                                          item.customerId?.toString() ===
+                                          user?._id?.toString()
+                                      )
+                                      .map((item) => {
+                                        const menu = order.items.find(
+                                          (i) => i.menu._id === item.menuId
+                                        )?.menu;
+                                        return {
+                                          id: item._id,
+                                          menuId: item.menuId,
+                                          name: menu?.name ?? "",
+                                          price: menu?.price ?? 0,
+                                          discountPrice:
+                                            menu?.discountPrice ??
+                                            menu?.price ??
+                                            0,
+                                          quantity: item.quantity,
+                                          orderItemId: item._id,
+                                        };
+                                      });
 
-                      <div className="space-y-2">
-                        {order.orderItems.map((item) => {
-                          const menu = order.items.find(i => i.menu._id === item.menuId)?.menu; return (
-                            <div key={item._id} className="flex justify-between items-center text-sm">
-                              <div className="flex items-center gap-2">
-                                <span>{menu?.name} × {item.quantity}</span>
-                                <span className={`text-xs px-2 py-0.5 rounded ${itemStatusStyles[item.status]}`}>
-                                  {item.status}
+                                  setCartItems(pendingItems);
+                                  setEditingOrderId(order._id);
+                                  setEditingOrder(order);
+                                  setIsEditingCartOpen(true);
+                                }}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Order items list */}
+                        <div className="space-y-2">
+                          {order.orderItems.map((item) => {
+                            const menu = order.items.find(
+                              (i) => i.menu._id === item.menuId
+                            )?.menu;
+                            const itemTotal =
+                              (menu?.discountPrice ?? menu?.price ?? 0) *
+                              item.quantity;
+
+                            return (
+                              <div
+                                key={item._id}
+                                className="flex items-start justify-between gap-2 text-sm py-1 border-b border-dashed border-muted last:border-0"
+                              >
+                                {/* Left: name + status + special instruction stacked */}
+                                <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                                  <div className="flex flex-wrap items-center gap-1.5">
+                                    <span className="font-medium truncate">
+                                      {menu?.name} × {item.quantity}
+                                    </span>
+                                    <span
+                                      className={`text-xs px-2 py-0.5 rounded shrink-0 ${itemStatusStyles[item.status]}`}
+                                    >
+                                      {item.status}
+                                    </span>
+                                  </div>
+
+                                  {item.specialInstruction && (
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <p className="text-xs italic text-muted-foreground flex items-center gap-1 cursor-default w-fit max-w-full">
+                                          <MessageSquare className="h-3 w-3 shrink-0" />
+                                          <span className="truncate max-w-[180px] sm:max-w-xs">
+                                            {item.specialInstruction}
+                                          </span>
+                                        </p>
+                                      </TooltipTrigger>
+                                      <TooltipContent
+                                        side="bottom"
+                                        className="max-w-xs text-xs"
+                                      >
+                                        <p className="font-medium mb-0.5 text-muted-foreground">
+                                          Special instruction
+                                        </p>
+                                        <p>{item.specialInstruction}</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  )}
+                                </div>
+
+                                {/* Right: price */}
+                                <span className="shrink-0 font-medium">
+                                  ₹{itemTotal}
                                 </span>
                               </div>
-                              {item.specialInstruction && (
-                                <p className="text-xs italic text-muted-foreground ml-1">
-                                  “{item.specialInstruction}”
-                                </p>
-                              )}
-                              <span>₹{(menu?.discountPrice ?? menu?.price ?? 0) * item.quantity}</span>
-
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      {order.specialInstruction && (
-                        <p className="text-sm italic text-muted-foreground">
-                          “{order.specialInstruction}”
-                        </p>
-                      )}
-
-                      <div className="border-t pt-3 space-y-3">
-
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Clock className="h-4 w-4" />
-                          {new Date(order.createdAt).toLocaleString()}
+                            );
+                          })}
                         </div>
 
-                        <div className="ml-auto w-40 space-y-1 text-sm">
-                          <div className="flex justify-between text-muted-foreground">
-                            <span>Subtotal</span>
-                            <span>₹{order.subTotal}</span>
-                          </div>
-
-                          <div className="flex justify-between text-muted-foreground">
-                            <span>GST ({order.gstPercent}%)</span>
-                            <span>₹{order.gstAmount}</span>
-                          </div>
-
-                          <div className="flex justify-between font-semibold border-t pt-1 ">
-                            <span>Total</span>
-                            <span className="flex items-center gap-1">
-                              <IndianRupee className="h-4 w-4" />
-                              {order.totalAmount}
+                        {/* Footer: time + totals */}
+                        <div className="border-t pt-3 space-y-3">
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <Clock className="h-3.5 w-3.5 shrink-0" />
+                            <span>
+                              {new Date(order.createdAt).toLocaleString()}
                             </span>
                           </div>
+
+                          {/* Totals — full width on mobile, right-aligned on sm+ */}
+                          <div className="w-full sm:w-44 sm:ml-auto space-y-1 text-sm">
+                            <div className="flex justify-between text-muted-foreground">
+                              <span>Subtotal</span>
+                              <span>₹{order.subTotal}</span>
+                            </div>
+                            <div className="flex justify-between text-muted-foreground">
+                              <span>GST ({order.gstPercent}%)</span>
+                              <span>₹{order.gstAmount}</span>
+                            </div>
+                            <div className="flex justify-between font-semibold border-t pt-1">
+                              <span>Total</span>
+                              <span className="flex items-center gap-0.5">
+                                <IndianRupee className="h-3.5 w-3.5" />
+                                {order.totalAmount}
+                              </span>
+                            </div>
+                          </div>
                         </div>
 
-                      </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
-                      {!order.isCompleted && hasEditableItems && (
-                        <button
-                          onClick={() => {
-                            const pendingItems: CartItem[] = order.orderItems
-                              .filter(
-                                (item) =>
-                                  item.status === "pending" &&
-                                  item.customerId?.toString() ===
-                                  user?._id?.toString()
-                              )
-                              .map(item => {
-                                const menu = order.items.find(i => i.menu._id === item.menuId)?.menu;
-                                return {
-                                  id: item._id,
-                                  menuId: item.menuId,
-                                  name: menu?.name ?? "",
-                                  price: menu?.price ?? 0,
-                                  discountPrice: menu?.discountPrice ?? menu?.price ?? 0,
-                                  quantity: item.quantity,
-                                  orderItemId: item._id,
-                                };
-                              });
-
-                            setCartItems(pendingItems);
-                            setEditingOrderId(order._id);
-                            setEditingOrder(order);
-                            setIsEditingCartOpen(true);
-                          }}
-                        >
-                          <Edit />
-                        </button>
-                      )}
-
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </div>
-        )}
-      </section>
-      <CartDrawer
-        isOpen={isEditingCartOpen}
-        onClose={() => {
-          setIsEditingCartOpen(false);
-          setEditingOrder(null);
-          refetch();
-        }}
-        editingOrder={editingOrder}
-      />
-    </>
+        <CartDrawer
+          isOpen={isEditingCartOpen}
+          onClose={() => {
+            setIsEditingCartOpen(false);
+            setEditingOrder(null);
+            refetch();
+          }}
+          editingOrder={editingOrder}
+        />
+      </>
+    </TooltipProvider>
   );
 }
