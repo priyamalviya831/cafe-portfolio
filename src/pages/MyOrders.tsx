@@ -241,7 +241,7 @@ export function MyOrders() {
 
     socket.on("order:new", handleNewOrder);
     socket.on("order:statusUpdated", handleOrderStatusUpdate);
-    socket.on("order:itemStatusUpdated", handleOrderItemStatusUpdate);
+    // socket.on("order:itemStatusUpdated", handleOrderItemStatusUpdate);
     socket.on("orderItem:statusUpdated", handleOrderItemStatusUpdate);
 
     const handleAny = (event: string, payload: any) => {

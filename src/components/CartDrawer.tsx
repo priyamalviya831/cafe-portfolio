@@ -87,8 +87,8 @@ export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
         clearForm();
         setIsFeedbackOpen(true);
       },
-      onError: (error: any) => {
-        toast.error(error.message);
+      onError: (error) => {
+        toast.error(error ?? "Failed to place order");
       },
     }
   );
@@ -202,7 +202,7 @@ export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
                             {item.name}
                           </h4>
                           <p className="text-sm text-muted-foreground">
-                            ₹{item.discountPrice.toFixed(2)} each
+                            ₹{(item.discountPrice ?? item.price).toFixed(2)} each
                           </p>
                         </div>
 

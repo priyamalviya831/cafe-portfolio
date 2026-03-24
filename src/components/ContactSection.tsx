@@ -62,7 +62,7 @@ export function ContactSection() {
       toast.success("Message sent successfully!");
       reset();
     } catch (error) {
-      toast.error(error);
+      toast.error(error.message ?? "failed to send message");
     }
   };
 
