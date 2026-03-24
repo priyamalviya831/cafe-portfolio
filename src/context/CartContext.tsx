@@ -3,7 +3,7 @@ import { CartItem, MenuItem } from "@/types/cafe";
 import { useDelete, usePatch } from "@/utils/useApi";
 import { API_ROUTES } from "@/utils/api_constant";
 import { useAuth } from "@/context/AuthContext";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { queryClient } from "@/App";
 
 interface CartContextType {
@@ -33,8 +33,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customer-orders"], exact: false });
     },
-    onError: (error: any) => {
-      toast.error(error.message || "Failed to update order item");
+    onError: (error) => {
+      toast.error(error);
     },
   });
 
@@ -42,8 +42,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customer-orders"], exact: false });
     },
-    onError: (error: any) => {
-      toast.error(error.message || "Failed to delete order item");
+    onError: (error) => {
+      toast.error(error);
     },
   });
 

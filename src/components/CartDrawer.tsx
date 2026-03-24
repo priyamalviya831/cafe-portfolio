@@ -5,7 +5,7 @@ import { useLayout } from "@/context/LayoutContext";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import { queryClient } from "@/App";
 import { LAYOUTS } from "@/utils/constants";
@@ -88,7 +88,7 @@ export function CartDrawer({ isOpen, onClose, editingOrder }: CartDrawerProps) {
         setIsFeedbackOpen(true);
       },
       onError: (error: any) => {
-        toast.error(error.message || "Failed to place order");
+        toast.error(error.message);
       },
     }
   );

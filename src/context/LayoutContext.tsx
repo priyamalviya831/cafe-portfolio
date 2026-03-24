@@ -73,13 +73,11 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
-
-    console.log(activeOrderData)
-  if (activeOrderData?.result?.active) {
-    setExistingOrder(activeOrderData?.result?.order);
-    setShowOccupiedModal(true);
-  }
-}, [activeOrderData]);
+    if (activeOrderData?.result?.active) {
+      setExistingOrder(activeOrderData?.result?.order);
+      setShowOccupiedModal(true);
+    }
+  }, [activeOrderData]);
 
   const qrLayoutId = tableData?.result?.layoutId;
   const adminId = tableData?.result?.adminId?._id;

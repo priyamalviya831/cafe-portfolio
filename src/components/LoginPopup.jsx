@@ -8,6 +8,7 @@ import {
   InputAdornment,
   FormLabel,
   Grid,
+  Avatar,
 } from "@mui/material";
 import { useLayout } from "@/context/LayoutContext";
 import { Controller, useForm } from "react-hook-form";
@@ -21,7 +22,15 @@ import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 
 export function LoginPopup({ open, onClose }) {
-  const { config, tableNumber, setTableNumber, isFromQR, isPreview, isLoginOpen, setIsLoginOpen  } = useLayout();
+  const {
+    config,
+    tableNumber,
+    setTableNumber,
+    isFromQR,
+    isPreview,
+    isLoginOpen,
+    setIsLoginOpen,
+  } = useLayout();
   const { setUser } = useAuth();
 
   if (isPreview) return null;
@@ -57,8 +66,7 @@ export function LoginPopup({ open, onClose }) {
       onClose();
     },
     onError: (error) => {
-      console.log(error);
-      toast.error(error?.message || "Login failed");
+      toast.error(error);
     },
   });
 
@@ -73,8 +81,9 @@ export function LoginPopup({ open, onClose }) {
   return (
     <>
       <Dialog open={isLoginOpen} onClose={() => setIsLoginOpen(false)}>
-        <DialogTitle className="font-bold border flex justify-between items-center">
-          <p className="text-center"> Welcome to {config?.logo} </p>
+        <DialogTitle className="font-bold border flex gap-2 items-center">
+          <Avatar src={config?.adminId.logo} />
+          <p className="text-center"> Welcome to {config?.adminId.cafeName} </p>
         </DialogTitle>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogContent className="m-2">
@@ -169,7 +178,6 @@ export function LoginPopup({ open, onClose }) {
           </DialogActions>
         </form>
       </Dialog>
-
     </>
   );
 }

@@ -23,12 +23,6 @@ const useFetch = (key, endpoint, params = {}, options = {}) => {
   });
 };
 
-// const usePost = (endpoint, options = {}, params) => {
-//   return useMutation({
-//     mutationFn: (data) => APIRequest.post(endpoint, data, params),
-//     ...options,
-//   });
-// };
 const usePost = <TResponse = any, TPayload = any>(
   endpoint: string,
   options: any = {},

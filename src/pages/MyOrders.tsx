@@ -78,7 +78,6 @@ const itemStatusStyles: Record<string, string> = {
 export function MyOrders() {
   const { user } = useAuth();
   const { setCartItems, setEditingOrderId } = useCart();
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [orders, setOrders] = useState<ServerOrder[]>([]);
   const [editingOrder, setEditingOrder] = useState<ServerOrder | null>(null);
   const [isEditingCartOpen, setIsEditingCartOpen] = useState(false);
@@ -114,9 +113,9 @@ export function MyOrders() {
     ordersRef.current = orders;
   }, [orders]);
 
-  useEffect(() => {
-    refetchRef.current = refetch;
-  }, [refetch]);
+  // useEffect(() => {
+  //   refetchRef.current = refetch;
+  // }, [refetch]);
 
   useEffect(() => {
     if (!user?._id) return;

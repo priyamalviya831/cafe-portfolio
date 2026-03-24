@@ -4,18 +4,17 @@ import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
 import rtlPlugin from "stylis-plugin-rtl";
 import { Toaster } from "react-hot-toast";
-import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import {Index} from "./pages/Index";
-import {NotFound} from "./pages/NotFound";
+import { Index } from "./pages/Index";
+import { NotFound } from "./pages/NotFound";
 import { AuthProvider } from "@/context/AuthContext";
 import { LayoutProvider } from "./context/LayoutContext";
-import {MyOrders} from "./pages/MyOrders";
+import { MyOrders } from "./pages/MyOrders";
 
-import {Home} from "./pages/Home";
-import {Menu} from "./pages/Menu";
-import {QrRedirect} from "./components/QrRedirect";
-import {ErrorBoundary} from "./components/ErrorBoundary";
+import { Home } from "./pages/Home";
+import { Menu } from "./pages/Menu";
+import { QrRedirect } from "./components/QrRedirect";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,7 +49,6 @@ export default function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Toaster position="bottom-right" reverseOrder={false} />
-              <SonnerToaster />
             </BrowserRouter>
           </AuthProvider>
         </TooltipProvider>
