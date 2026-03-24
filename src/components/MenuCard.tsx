@@ -177,7 +177,7 @@ ${disabled ? "opacity-50 grayscale pointer-events-none" : "hover:shadow-lg hover
           <div className="text-left sm:text-right mt-1 sm:mt-0">
             {item.discountPrice && (
               <span className="text-accent font-bold block">
-                ₹{item?.discountPrice?.toFixed(2)}
+                ₹{item.discountPrice.toFixed(2)}
               </span>
             )}
             <span className="text-xs text-muted-foreground line-through">
