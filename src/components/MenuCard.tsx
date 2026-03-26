@@ -66,10 +66,10 @@ export function MenuCard({ item, index, disabled }: MenuCardProps) {
 
             <div className="text-right">
               <span className="text-primary font-semibold block">
-                ₹{item.discountPrice.toFixed(2)}
+                ₹{item.discountPrice.toFixed(2)||"0.00"}
               </span>
               <span className="text-sm text-muted-foreground line-through">
-                ₹{item.price.toFixed(2)}
+            ₹{(item.price ?? 0).toFixed(2)}
               </span>
             </div>
           </div>
@@ -176,7 +176,7 @@ ${disabled ? "opacity-50 grayscale pointer-events-none" : "hover:shadow-lg hover
 
           <div className="text-left sm:text-right mt-1 sm:mt-0">
             <span className="text-accent font-bold block">
-              ₹{item.discountPrice.toFixed(2)}
+              {/* ₹{item.discountPrice.toFixed(2)} */}
             </span>
             <span className="text-xs text-muted-foreground line-through">
               ₹{item.price.toFixed(2)}
