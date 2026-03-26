@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ShoppingCart, Menu, X, Coffee, ClipboardList } from 'lucide-react';
+import { ShoppingCart, Menu, X, Coffee, ClipboardList, Bell } from 'lucide-react';
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useLayout } from '@/context/LayoutContext';
@@ -10,6 +10,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useFetch } from "@/utils/useApi";
 import {API_ROUTES} from "@/utils/api_constant";
 import { useAuth } from "@/context/AuthContext";
+import { NotificationDrawer } from "@/components/ui/notificationDrawer";
 
 interface HeaderProps {
   onCartClick: () => void;
@@ -17,6 +18,7 @@ interface HeaderProps {
 
 export function Header({ onCartClick }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const { itemCount } = useCart();
   const { layoutType, config } = useLayout();;
   const { qrId } = useParams();
@@ -109,6 +111,17 @@ export function Header({ onCartClick }: HeaderProps) {
                 {item.label}
               </motion.button>
             ))}
+            <motion.button
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: navItems.length * 0.1 }}
+              onClick={() => setIsNotificationOpen(true)}
+              className="text-sm font-medium hover:text-primary flex items-center"
+              aria-label="Notifications"
+              title="Notifications"
+            >
+              <Bell className="h-4 w-4" />
+            </motion.button>
           </nav>
 
           {/* Right Actions */}
@@ -173,6 +186,11 @@ export function Header({ onCartClick }: HeaderProps) {
           </div>
         )}
       </div>
+
+      <NotificationDrawer
+        open={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+      />
     </motion.header>
   );
 }
