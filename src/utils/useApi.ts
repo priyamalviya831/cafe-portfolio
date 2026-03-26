@@ -23,12 +23,6 @@ const useFetch = (key, endpoint, params = {}, options = {}) => {
   });
 };
 
-// const usePost = (endpoint, options = {}, params) => {
-//   return useMutation({
-//     mutationFn: (data) => APIRequest.post(endpoint, data, params),
-//     ...options,
-//   });
-// };
 const usePost = <TResponse = any, TPayload = any>(
   endpoint: string,
   options: any = {},
@@ -44,28 +38,43 @@ const usePost = <TResponse = any, TPayload = any>(
 };
 
 
-const usePut = (endpoint, options = {}) => {
-  return useMutation({
-    mutationFn: (data) => APIRequest.put(endpoint, data),
+const usePut = <TResponse = any, TPayload = any>(
+  endpoint: string,
+  options: any = {}
+) => {
+  return useMutation<TResponse, Error, TPayload>({
+    mutationFn: (payload: TPayload) => APIRequest.put(endpoint, payload),
     ...options,
   });
 };
 
-const usePatch = (endpoint, options = {}) => {
-  return useMutation({
-    mutationFn: (data) => APIRequest.patch(endpoint, data),
+const usePatch = <TResponse = any, TPayload = any>(
+  endpoint: string,
+  options: any = {}
+) => {
+  return useMutation<TResponse, Error, TPayload>({
+    mutationFn: (payload: TPayload) => APIRequest.patch(endpoint, payload),
     ...options,
   });
 };
 
-const useDelete = (endpoint, options = {}) => {
-  return useMutation({
-    mutationFn: (data) =>
-      APIRequest.remove(
+const useDelete = <TResponse = any, TPayload = any>(
+  endpoint: string,
+  options: any = {}
+) => {
+  return useMutation<TResponse, Error, TPayload>({
+    mutationFn: (data: TPayload) => {
+      if (data && typeof data === "object" && "id" in data) {
+        const { id, ...body } = data as any;
+        return APIRequest.remove(`${endpoint}/${id}`, {}, body);
+      }
+
+      return APIRequest.remove(
         `${endpoint}/${typeof data === "string" ? data : ""}`,
         {},
         typeof data === "object" ? data : {},
-      ),
+      );
+    },
     ...options,
   });
 };

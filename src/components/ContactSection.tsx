@@ -62,7 +62,7 @@ export function ContactSection() {
       toast.success("Message sent successfully!");
       reset();
     } catch (error) {
-      toast.error("Failed to send message");
+      toast.error(error.message ?? "failed to send message");
     }
   };
 
@@ -161,7 +161,7 @@ export function ContactSection() {
               Send us a message
             </h3>
 
-            <form onSubmit={handleSubmit( onSubmit, (formErrors) => { console.log("FORM ERRORS:", formErrors);})} className="space-y-6 ">
+            <form onSubmit={handleSubmit(onSubmit, (formErrors) => { console.log("FORM ERRORS:", formErrors); })} className="space-y-6 ">
 
               <Controller
                 name="firstName"
@@ -226,8 +226,8 @@ export function ContactSection() {
                 type="submit"
                 disabled={isSubmitting}
                 className={`w-full ${isElegant
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-accent text-accent-foreground rounded-xl"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-accent text-accent-foreground rounded-xl"
                   }`}
               >
                 {isSubmitting ? "Sending..." : "Send Message"}

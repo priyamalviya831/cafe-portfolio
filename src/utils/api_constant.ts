@@ -11,6 +11,8 @@ const API_ROUTES = {
     topFeedback: "portfolio/top-feedback",
     getCustomerNotifications: "notification/customer",
     readAllCustomerNotifications: "notification/customer/read-all",
-};
-
-export { API_ROUTES };
+    getExistingOrder :"order/active",
+    updateOrderItem: "order/public/item-quantity",
+    deleteOrderItem: "order/public/item"
+}
+export {API_ROUTES};

@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { LAYOUTS } from '@/utils/constants';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useFetch } from "@/utils/useApi";
-import {API_ROUTES} from "@/utils/api_constant";
+import { API_ROUTES } from "@/utils/api_constant";
 import { useAuth } from "@/context/AuthContext";
 import { NotificationDrawer } from "@/components/ui/notificationDrawer";
 
@@ -26,19 +26,6 @@ export function Header({ onCartClick }: HeaderProps) {
   const location = useLocation();
 
   const { user } = useAuth();
-
-  const { data: ordersData } = useFetch(
-    `order-${user?._id}`,
-    API_ROUTES.getCustomerOrder,
-    { userId: user?._id },
-    {
-      enabled: !!user?._id,
-      staleTime: 5 * 60 * 1000, // cache for 5 mins
-    }
-  );
-
-  const hasOrders =
-    (ordersData?.result?.results?.length ?? 0) > 0;
 
   const navItems = [
     { label: "Home", section: "home" },
@@ -75,14 +62,14 @@ export function Header({ onCartClick }: HeaderProps) {
         <div className="flex items-center justify-between h-16 md:h-20">
 
           {/* Logo */}
-          <div className="flex items-center gap-2 cursor-pointer" 
-          onClick={() => {
-            if (location.pathname === `/${qrId}`) {
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            } else {
-              navigate(`/${qrId}`);
-            }
-          }}>
+          <div className="flex items-center gap-2 cursor-pointer"
+            onClick={() => {
+              if (location.pathname === `/${qrId}`) {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                navigate(`/${qrId}`);
+              }
+            }}>
             {config?.adminId?.logo ? (
               <img
                 src={config.adminId.logo}
@@ -126,18 +113,18 @@ export function Header({ onCartClick }: HeaderProps) {
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
-            {hasOrders && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                onClick={() => navigate(`${basePath}/my-orders`)}
-                className={`hidden md:flex ${location.pathname.includes("my-orders")
-                  ? "text-primary"
-                  : "text-foreground"
-                  }`}
-              >
-                <ClipboardList className="h-5 w-5" />
-              </motion.button>
-            )}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              onClick={() => navigate(`${basePath}/my-orders`)}
+              className={`flex items-center justify-center ${location.pathname.includes("my-orders")
+                ? "text-primary"
+                : "text-foreground"
+                }`}
+              aria-label="My orders"
+              title="My orders"
+            >
+              <ClipboardList className="h-5 w-5" />
+            </motion.button>
 
             {/* Cart */}
             <motion.button
@@ -178,7 +165,10 @@ export function Header({ onCartClick }: HeaderProps) {
               </button>
             ))}
             <button
-              onClick={() => navigate(`${basePath}/my-orders`)}
+              onClick={() => {
+                setIsMenuOpen(false);
+                navigate(`${basePath}/my-orders`)
+              }}
               className="text-left"
             >
               My Orders

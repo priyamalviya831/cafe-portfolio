@@ -3,8 +3,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CartDrawer } from '@/components/CartDrawer';
 import { useEffect, useState } from "react";
-import {LoginPopup} from "@/components/LoginPopup";
-import { useAuth } from "@/context/AuthContext";
+import { LoginPopup } from "@/components/LoginPopup";
 import { useCart } from '@/context/CartContext';
 import { motion, AnimatePresence } from "framer-motion";
 import { Outlet, useLocation } from "react-router-dom";
@@ -12,7 +11,7 @@ import { useLayout } from '@/context/LayoutContext';
 
 const LayoutContent = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { itemCount, total } = useCart(); // ✅ SAFE HERE
+  const { itemCount, total, isOpen } = useCart(); // ✅ SAFE HERE
 
   const [showLogin, setShowLogin] = useState(false);
   const location = useLocation();
@@ -43,7 +42,7 @@ const LayoutContent = () => {
 
       {/* 🔥 SLIDE UP CART BUTTON */}
       <AnimatePresence>
-        {itemCount > 0 && !isCartOpen && (
+        {itemCount > 0 && !isOpen && (
           <motion.div
             initial={{ y: 120, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -73,4 +72,4 @@ const Index = () => {
   );
 };
 
-export {Index};
+export { Index };

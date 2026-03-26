@@ -1,12 +1,20 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { CartItem, MenuItem } from '@/types/cafe';
+import React, { createContext, useContext, useState, useCallback } from "react";
+import { CartItem, MenuItem } from "@/types/cafe";
+import { useDelete, usePatch } from "@/utils/useApi";
+import { API_ROUTES } from "@/utils/api_constant";
+import { useAuth } from "@/context/AuthContext";
+import toast from "react-hot-toast";
+import { queryClient } from "@/App";
 
 interface CartContextType {
   items: CartItem[];
   addItem: (item: MenuItem) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
+  setCartItems: (items: CartItem[]) => void;
   clearCart: () => void;
+  editingOrderId: string | null;
+  setEditingOrderId: (orderId: string | null) => void;
   total: number;
   itemCount: number;
   isOpen: boolean;
@@ -18,6 +26,26 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
+  const { user } = useAuth();
+
+  const { mutate: updateOrderItem } = usePatch(API_ROUTES.updateOrderItem, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["customer-orders"], exact: false });
+    },
+    onError: (error) => {
+      toast.error(error);
+    },
+  });
+
+  const { mutate: deleteOrderItem } = useDelete(API_ROUTES.deleteOrderItem, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["customer-orders"], exact: false });
+    },
+    onError: (error) => {
+      toast.error(error);
+    },
+  });
 
   const addItem = useCallback((item: MenuItem) => {
     setItems((prev) => {
@@ -31,25 +59,68 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const removeItem = useCallback((itemId: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== itemId));
-  }, []);
+  const removeItem = useCallback(
+    (itemId: string) => {
+      if (editingOrderId) {
+        setItems((prev) => prev.filter((i) => i.id !== itemId));
 
-  const updateQuantity = useCallback((itemId: string, quantity: number) => {
-    if (quantity <= 0) {
+        if (!user?._id) {
+          toast.error("Please login to delete items");
+          return;
+        }
+
+        deleteOrderItem({ id: itemId, customerId: user._id });
+        return;
+      }
+
       setItems((prev) => prev.filter((i) => i.id !== itemId));
-    } else {
-      setItems((prev) =>
-        prev.map((i) => (i.id === itemId ? { ...i, quantity } : i))
-      );
-    }
+    },
+    [editingOrderId, deleteOrderItem, user?._id]
+  );
+
+  const updateQuantity = useCallback(
+    (itemId: string, quantity: number) => {
+      if (editingOrderId) {
+        if (quantity < 1) return;
+
+        setItems((prev) =>
+          prev.map((i) => (i.id === itemId ? { ...i, quantity } : i))
+        );
+
+        if (!user?._id) {
+          toast.error("Please login to update items");
+          return;
+        }
+
+        updateOrderItem({
+          orderItemId: itemId,
+          quantity,
+          customerId: user._id,
+        });
+        return;
+      }
+
+      if (quantity <= 0) {
+        setItems((prev) => prev.filter((i) => i.id !== itemId));
+      } else {
+        setItems((prev) =>
+          prev.map((i) => (i.id === itemId ? { ...i, quantity } : i))
+        );
+      }
+    },
+    [editingOrderId, updateOrderItem, user?._id]
+  );
+
+  const setCartItems = useCallback((newItems: CartItem[]) => {
+    setItems(newItems);
   }, []);
 
   const clearCart = useCallback(() => {
     setItems([]);
+    setEditingOrderId(null);
   }, []);
 
-  const total = items.reduce((sum, item) => sum + item.discountPrice * item.quantity, 0);
+  const total = items.reduce((sum, item) => sum + (item.discountPrice ?? item.price) * item.quantity, 0);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -59,7 +130,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         addItem,
         removeItem,
         updateQuantity,
+        setCartItems,
         clearCart,
+        editingOrderId,
+        setEditingOrderId,
         total,
         itemCount,
         isOpen,
@@ -74,7 +148,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 export function useCart() {
   const context = useContext(CartContext);
   if (!context) {
-    throw new Error('useCart must be used within a CartProvider');
+    throw new Error("useCart must be used within a CartProvider");
   }
   return context;
 }
